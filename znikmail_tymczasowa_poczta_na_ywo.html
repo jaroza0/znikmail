@@ -1,0 +1,2142 @@
+<!DOCTYPE html>
+<html lang="pl" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZnikMail — Tymczasowa Poczta E-mail Na Żywo</title>
+
+  <!-- Czcionki Google: Inter oraz JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS przez CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+          },
+          animation: {
+            'spin-once': 'spin 0.65s ease-in-out',
+            'fade-in': 'fadeIn 0.25s ease-out forwards',
+            'slide-up': 'slideUp 0.25s ease-out forwards',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            },
+            slideUp: {
+              '0%': { opacity: '0', transform: 'translateY(10px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Biblioteka QRCode.js do generowania kodów QR -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+
+  <style>
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background-color: rgba(148, 163, 184, 0.45);
+      border-radius: 9999px;
+    }
+    .dark ::-webkit-scrollbar-thumb {
+      background-color: rgba(71, 85, 105, 0.65);
+    }
+    #qrContainer img,
+    #qrContainer canvas {
+      margin: 0 auto;
+      border-radius: 0.75rem;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 font-sans antialiased min-h-screen flex flex-col transition-colors duration-200 selection:bg-violet-600 selection:text-white">
+
+  <!-- ==================== NAGŁÓWEK ==================== -->
+  <header class="sticky top-0 z-30 bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 sm:py-0 sm:h-16 flex flex-wrap items-center justify-between gap-3">
+      <!-- Logo ZnikMail -->
+      <a href="#" class="flex items-center gap-2.5 group focus:outline-none">
+        <div class="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 via-violet-600 to-cyan-500 text-white shadow-lg shadow-indigo-500/25 group-hover:scale-105 transition-transform">
+          <!-- Oryginalne logo SVG: koperta z efektem znikania/błysku -->
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h11A2.5 2.5 0 0 1 20 7.5v7A2.5 2.5 0 0 1 17.5 17H9" />
+            <path d="M4 7.5l8 5.5 8-5.5" />
+            <path d="M3 13h3" stroke-opacity="0.7" />
+            <path d="M2 16.5h4.5" stroke-opacity="0.5" />
+            <path d="M18.5 2.5l.6 1.4 1.4.6-1.4.6-.6 1.4-.6-1.4-1.4-.6 1.4-.6.6-1.4z" fill="currentColor" stroke="none" />
+          </svg>
+        </div>
+        <div class="flex flex-col">
+          <span class="font-extrabold text-lg tracking-tight leading-none text-slate-900 dark:text-white">
+            Znik<span class="bg-gradient-to-r from-indigo-600 to-cyan-500 dark:from-indigo-400 dark:to-cyan-400 bg-clip-text text-transparent">Mail</span>
+          </span>
+          <span class="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:inline mt-0.5">
+            Jednorazowa poczta na żywo
+          </span>
+        </div>
+      </a>
+
+      <!-- Przełącznik trybu pracy (Na Żywo / Demo) + status + motyw -->
+      <div class="flex items-center gap-2 sm:gap-3 ml-auto">
+        <!-- Przełącznik Tryb Na Żywo / Tryb Demo -->
+        <div class="inline-flex items-center p-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80" role="group" aria-label="Tryb pracy skrzynki">
+          <button
+            id="modeLiveBtn"
+            type="button"
+            class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+          >
+            <span id="liveDotWrapper" class="relative flex h-2 w-2 shrink-0">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span>Na Żywo</span>
+          </button>
+          <button
+            id="modeDemoBtn"
+            type="button"
+            class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+          >
+            <span>Demo</span>
+          </button>
+        </div>
+
+        <!-- Przełącznik motywu jasny/ciemny -->
+        <button
+          id="themeToggleBtn"
+          type="button"
+          aria-label="Przełącz motyw jasny lub ciemny"
+          title="Przełącz motyw"
+          class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500"
+        >
+          <svg class="w-4 h-4 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          <svg class="w-4 h-4 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Pasek postępu auto-odświeżania (7s) -->
+    <div class="h-0.5 w-full bg-slate-200/70 dark:bg-slate-800 overflow-hidden">
+      <div id="refreshProgressBar" class="h-full bg-gradient-to-r from-indigo-600 via-violet-500 to-cyan-400 transition-all duration-1000 ease-linear" style="width: 100%"></div>
+    </div>
+  </header>
+
+  <!-- ==================== GŁÓWNA ZAWARTOŚĆ ==================== -->
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8">
+
+    <!-- ===== SEKCJA HERO: PANEL ZARZĄDZANIA ADRESEM ===== -->
+    <section class="relative overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm p-5 sm:p-8">
+      <!-- Dekoracyjne rozmycia w tle -->
+      <div class="pointer-events-none absolute -top-28 -right-24 w-72 h-72 rounded-full bg-violet-500/10 dark:bg-violet-500/15 blur-3xl"></div>
+      <div class="pointer-events-none absolute -bottom-28 -left-24 w-72 h-72 rounded-full bg-cyan-500/10 dark:bg-cyan-500/10 blur-3xl"></div>
+
+      <div class="relative z-10 max-w-3xl mx-auto text-center space-y-5">
+        <!-- Pigułka statusu trybu -->
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200/70 dark:border-emerald-800/60" id="statusBadge">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span id="statusBadgeText">Połączono z API na żywo • Auto-odświeżanie za <strong id="countdownLabel" class="font-mono">7</strong>s</span>
+        </div>
+
+        <div class="space-y-1.5">
+          <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            Twój tymczasowy adres e-mail
+          </h1>
+          <p class="text-sm text-slate-500 dark:text-slate-400">
+            Odbieraj prawdziwe wiadomości i kody weryfikacyjne bez podawania prywatnej skrzynki. Adres zapisuje się automatycznie w Twojej przeglądarce.
+          </p>
+        </div>
+
+        <!-- Pole z adresem e-mail i przyciskiem Kopiuj -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 p-2 rounded-2xl bg-slate-100/90 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 shadow-inner">
+          <div class="relative flex-1 flex items-center min-w-0">
+            <span class="pl-3 text-violet-600 dark:text-violet-400 shrink-0" aria-hidden="true">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+              </svg>
+            </span>
+            <input
+              id="emailInput"
+              type="text"
+              readonly
+              aria-label="Twój tymczasowy adres e-mail"
+              class="w-full bg-transparent px-3 py-2.5 font-mono text-base sm:text-lg font-semibold text-slate-900 dark:text-white focus:outline-none select-all truncate"
+              value="Łączenie z serwerem..."
+            />
+          </div>
+
+          <button
+            id="copyEmailBtn"
+            type="button"
+            class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 active:scale-[0.99] text-white font-semibold text-sm shadow-md shadow-indigo-600/25 transition-all focus:outline-none focus:ring-2 focus:ring-violet-500 shrink-0"
+          >
+            <svg id="copyBtnIcon" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            <span id="copyBtnText">Kopiuj</span>
+          </button>
+        </div>
+
+        <!-- Rząd przycisków zarządzania -->
+        <div class="flex flex-wrap items-center justify-center gap-2">
+          <button
+            id="refreshBtn"
+            type="button"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-700 dark:text-slate-200 transition-colors"
+          >
+            <svg id="refreshIcon" class="w-4 h-4 text-violet-600 dark:text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span>Odśwież</span>
+          </button>
+
+          <button
+            id="changeAddressBtn"
+            type="button"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-700 dark:text-slate-200 transition-colors"
+          >
+            <svg class="w-4 h-4 text-cyan-600 dark:text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            <span>Zmień / Własny adres</span>
+          </button>
+
+          <button
+            id="newRandomBtn"
+            type="button"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-700 dark:text-slate-200 transition-colors"
+          >
+            <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            </svg>
+            <span>Nowy losowy</span>
+          </button>
+
+          <button
+            id="qrCodeBtn"
+            type="button"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-700 dark:text-slate-200 transition-colors"
+          >
+            <svg class="w-4 h-4 text-slate-600 dark:text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+            </svg>
+            <span>Kod QR</span>
+          </button>
+
+          <button
+            id="deleteMailboxBtn"
+            type="button"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-slate-200 dark:border-slate-700 hover:border-rose-200 dark:hover:border-rose-800 text-sm font-medium text-rose-600 dark:text-rose-400 transition-colors"
+          >
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            <span>Usuń</span>
+          </button>
+        </div>
+
+        <!-- Pasek czasu sesji i sugestii URL -->
+        <div class="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400">
+          <div class="flex items-center gap-2.5">
+            <span class="inline-flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Czas sesji:
+              <strong id="sessionTimer" class="font-mono text-slate-800 dark:text-slate-200 text-sm">00:00</strong>
+            </span>
+            <button
+              id="resetSessionTimerBtn"
+              type="button"
+              class="px-2.5 py-1 rounded-lg bg-violet-50 hover:bg-violet-100 dark:bg-violet-950/60 dark:hover:bg-violet-900/60 text-violet-700 dark:text-violet-300 font-semibold transition-colors"
+            >
+              Resetuj licznik
+            </button>
+          </div>
+
+          <div class="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+            <span>Wskazówka: użyj parametru</span>
+            <code class="font-mono text-[11px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-violet-600 dark:text-violet-400">?login=mojtest</code>
+            <span>aby zasugerować prefiks.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SEKCJA SKRZYNKI ODBIORCZEJ (SPLIT-VIEW) ===== -->
+    <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden">
+      <!-- Pasek narzędzi skrzynki -->
+      <div class="p-4 sm:px-6 border-b border-slate-200/80 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-3 bg-slate-50/70 dark:bg-slate-900/60">
+        <div class="flex items-center gap-3">
+          <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <svg class="w-5 h-5 text-violet-600 dark:text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+            </svg>
+            Skrzynka odbiorcza
+          </h2>
+          <span
+            id="unreadBadge"
+            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300"
+          >
+            0 wiadomości
+          </span>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+          <!-- Wyszukiwarka -->
+          <div class="relative flex-1 sm:w-64">
+            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              id="searchInput"
+              type="text"
+              placeholder="Szukaj po nadawcy, temacie..."
+              class="w-full pl-9 pr-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
+            />
+          </div>
+
+          <!-- Przycisk symulacji (widoczny aktywnie w trybie Demo) -->
+          <button
+            id="sendDemoEmailBtn"
+            type="button"
+            class="hidden items-center justify-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white text-sm font-medium shadow-sm shadow-emerald-600/20 transition-all shrink-0"
+          >
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            <span>Wyślij testowy e-mail</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Dwukolumnowy układ Split-View -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 min-h-[500px]">
+        <!-- Lewa kolumna: Lista wiadomości -->
+        <div
+          id="messageListPane"
+          class="lg:col-span-5 border-b lg:border-b-0 lg:border-r border-slate-200/80 dark:border-slate-800 flex flex-col max-h-[600px] overflow-y-auto"
+        >
+          <!-- Generowane przez JS -->
+        </div>
+
+        <!-- Prawa kolumna: Podgląd wiadomości -->
+        <div
+          id="messageDetailPane"
+          class="lg:col-span-7 hidden lg:flex flex-col bg-slate-50/40 dark:bg-slate-950/30 min-h-[500px]"
+        >
+          <!-- Generowane przez JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SEKCJA INFORMACYJNA: 4 KARTY KORZYŚCI ===== -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+      <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
+        <div class="w-11 h-11 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5.636 18.364a9 9 0 010-12.728m12.728 0a9 9 0 010 12.728m-9.9-2.829a5 5 0 010-7.07m7.072 0a5 5 0 010 7.07M13 12a1 1 0 11-2 0 1 1 0 012 0z" />
+          </svg>
+        </div>
+        <h3 class="font-bold text-slate-900 dark:text-white text-sm sm:text-base">Prawdziwe API w czasie rzeczywistym</h3>
+        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+          ZnikMail łączy się bezpośrednio z serwerami Mail.tm, dzięki czemu odbierasz prawdziwe maile z Gmaila, sklepów i portali.
+        </p>
+      </div>
+
+      <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
+        <div class="w-11 h-11 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <h3 class="font-bold text-slate-900 dark:text-white text-sm sm:text-base">Zero rejestracji</h3>
+        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+          Twoja skrzynka powstaje automatycznie w ułamku sekundy. Nie wymagamy podawania imienia, hasła ani numeru telefonu.
+        </p>
+      </div>
+
+      <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
+        <div class="w-11 h-11 rounded-xl bg-violet-50 dark:bg-violet-950/60 text-violet-600 dark:text-violet-400 flex items-center justify-center">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+        </div>
+        <h3 class="font-bold text-slate-900 dark:text-white text-sm sm:text-base">Ochrona przed spamem</h3>
+        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+          Izolowany podgląd HTML w bezpiecznym kontenerze chroni Twoją prywatność i utrzymuje główną skrzynkę w czystości.
+        </p>
+      </div>
+
+      <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
+        <div class="w-11 h-11 rounded-xl bg-cyan-50 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400 flex items-center justify-center">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+        </div>
+        <h3 class="font-bold text-slate-900 dark:text-white text-sm sm:text-base">Automatyczne wykrywanie kodów OTP</h3>
+        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+          ZnikMail automatycznie rozpoznaje kody weryfikacyjne (4–8 cyfr) w treści wiadomości i pozwala skopiować je jednym kliknięciem.
+        </p>
+      </div>
+    </section>
+
+    <!-- ===== SEKCJA FAQ (AKORDEON) ===== -->
+    <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm p-6 sm:p-8">
+      <div class="max-w-3xl mx-auto">
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-5">
+          Najczęściej zadawane pytania — ZnikMail
+        </h2>
+
+        <div class="divide-y divide-slate-200/80 dark:divide-slate-800">
+          <!-- FAQ 1 -->
+          <div class="py-3.5">
+            <button type="button" class="faq-trigger w-full flex items-center justify-between gap-4 text-left font-semibold text-sm sm:text-base text-slate-800 dark:text-slate-100 hover:text-violet-600 dark:hover:text-violet-400 transition-colors focus:outline-none" aria-expanded="true">
+              <span>Jak działa odbieranie prawdziwych maili w ZnikMail?</span>
+              <svg class="faq-chevron w-5 h-5 text-slate-400 shrink-0 transition-transform duration-200 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div class="faq-content mt-2.5 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+              W trybie <strong>Na Żywo</strong> aplikacja tworzy w Twoim imieniu prawdziwe konto pocztowe w publicznej infrastrukturze <strong>Mail.tm</strong> i uwierzytelnia je tokenem JWT. Każda wiadomość wysłana na wygenerowany adres (np. z Gmaila, sklepu internetowego lub portalu społecznościowego) pojawi się w skrzynce automatycznie w ciągu kilku sekund.
+            </div>
+          </div>
+
+          <!-- FAQ 2 -->
+          <div class="py-3.5">
+            <button type="button" class="faq-trigger w-full flex items-center justify-between gap-4 text-left font-semibold text-sm sm:text-base text-slate-800 dark:text-slate-100 hover:text-violet-600 dark:hover:text-violet-400 transition-colors focus:outline-none" aria-expanded="false">
+              <span>Czy podgląd wiadomości HTML jest bezpieczny?</span>
+              <svg class="faq-chevron w-5 h-5 text-slate-400 shrink-0 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div class="faq-content hidden mt-2.5 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+              Tak. Wszystkie wiadomości w formacie HTML są wyświetlane wewnątrz odizolowanego elementu <code class="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">&lt;iframe sandbox&gt;</code>, co blokuje wykonywanie skryptów JavaScript z treści wiadomości. Możesz też w każdej chwili przełączyć podgląd na czysty tekst.
+            </div>
+          </div>
+
+          <!-- FAQ 3 -->
+          <div class="py-3.5">
+            <button type="button" class="faq-trigger w-full flex items-center justify-between gap-4 text-left font-semibold text-sm sm:text-base text-slate-800 dark:text-slate-100 hover:text-violet-600 dark:hover:text-violet-400 transition-colors focus:outline-none" aria-expanded="false">
+              <span>Jak długo przechowywana jest moja skrzynka i wiadomości?</span>
+              <svg class="faq-chevron w-5 h-5 text-slate-400 shrink-0 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div class="faq-content hidden mt-2.5 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+              Dane Twojej aktywnej sesji są zapisywane lokalnie w pamięci przeglądarki (<code class="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">localStorage</code>), więc po odświeżeniu karty nadal masz dostęp do tej samej skrzynki. Wiadomości w Mail.tm są przechowywane tymczasowo (zazwyczaj do 7 dni), a kliknięcie przycisku <strong>„Usuń”</strong> natychmiast kasuje konto z serwera. Ważne maile możesz wcześniej pobrać jako plik <code class="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">.eml</code>.
+            </div>
+          </div>
+
+          <!-- FAQ 4 -->
+          <div class="py-3.5">
+            <button type="button" class="faq-trigger w-full flex items-center justify-between gap-4 text-left font-semibold text-sm sm:text-base text-slate-800 dark:text-slate-100 hover:text-violet-600 dark:hover:text-violet-400 transition-colors focus:outline-none" aria-expanded="false">
+              <span>Do czego służy Tryb Demo (Symulacja offline)?</span>
+              <svg class="faq-chevron w-5 h-5 text-slate-400 shrink-0 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div class="faq-content hidden mt-2.5 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+              Tryb Demo pozwala błyskawicznie przetestować działanie skrzynki, wykrywanie kodów OTP i eksport <code class="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">.eml</code> bez wysyłania prawdziwych maili. Uruchamia się również automatycznie jako tryb awaryjny, jeśli nie masz dostępu do internetu lub serwer API chwilowo ograniczy liczbę zapytań.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==================== STOPKA ==================== -->
+  <footer class="mt-8 border-t border-slate-200/80 dark:border-slate-800/80 bg-white/60 dark:bg-slate-900/40">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400 text-center sm:text-left">
+      <p>
+        &copy; <span id="currentYear"></span> <strong>ZnikMail</strong> — Szybka i bezpieczna poczta jednorazowa.
+      </p>
+      <p>
+        Napędzane przez otwarte API <strong>Mail.tm</strong> z automatycznym trybem awaryjnym Demo.
+      </p>
+    </div>
+  </footer>
+
+  <!-- ==================== MODAL: ZMIEŃ / WŁASNY ADRES ==================== -->
+  <div
+    id="changeAddressModal"
+    class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="changeAddressTitle"
+  >
+    <div class="w-full max-w-md rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-6 space-y-5 animate-slide-up">
+      <div class="flex items-center justify-between">
+        <h3 id="changeAddressTitle" class="text-lg font-bold text-slate-900 dark:text-white">
+          Ustaw własny adres e-mail
+        </h3>
+        <button
+          type="button"
+          data-close-modal="changeAddressModal"
+          class="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          aria-label="Zamknij okno"
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form id="changeAddressForm" class="space-y-4">
+        <div class="space-y-1.5">
+          <label for="customUsernameInput" class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            Nazwa użytkownika (login)
+          </label>
+          <div class="flex gap-2">
+            <input
+              id="customUsernameInput"
+              type="text"
+              required
+              minlength="3"
+              maxlength="32"
+              pattern="[a-zA-Z0-9._-]+"
+              placeholder="np. jan.test2026"
+              class="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+            />
+            <button
+              id="randomizeUsernameBtn"
+              type="button"
+              class="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium transition-colors shrink-0"
+            >
+              Losuj
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-400">Dozwolone małe litery, cyfry oraz znaki . _ -</p>
+        </div>
+
+        <div class="space-y-1.5">
+          <label for="domainSelect" class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            Dostępna domena
+          </label>
+          <select
+            id="domainSelect"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+          >
+            <!-- Wypełniane dynamicznie z API Mail.tm lub domen Demo -->
+          </select>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2.5">
+          <button
+            type="button"
+            data-close-modal="changeAddressModal"
+            class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-sm font-medium text-slate-700 dark:text-slate-200 transition-colors"
+          >
+            Anuluj
+          </button>
+          <button
+            id="saveCustomAddressBtn"
+            type="submit"
+            class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white text-sm font-semibold shadow-md shadow-indigo-600/20 transition-all"
+          >
+            Utwórz skrzynkę
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: KOD QR ==================== -->
+  <div
+    id="qrModal"
+    class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="qrModalTitle"
+  >
+    <div class="w-full max-w-sm rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-6 text-center space-y-5 animate-slide-up">
+      <div class="flex items-center justify-between">
+        <h3 id="qrModalTitle" class="text-lg font-bold text-slate-900 dark:text-white">
+          Kod QR skrzynki ZnikMail
+        </h3>
+        <button
+          type="button"
+          data-close-modal="qrModal"
+          class="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          aria-label="Zamknij okno"
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <p class="text-xs text-slate-500 dark:text-slate-400">
+        Zeskanuj telefonem, aby szybko skopiować lub użyć adresu na urządzeniu mobilnym.
+      </p>
+
+      <div class="p-4 rounded-2xl bg-white border border-slate-200 inline-block shadow-inner">
+        <div id="qrContainer" class="w-48 h-48 flex items-center justify-center"></div>
+      </div>
+
+      <div id="qrEmailLabel" class="font-mono text-xs font-semibold text-violet-600 dark:text-violet-400 break-all bg-violet-50 dark:bg-violet-950/50 py-2 px-3 rounded-xl"></div>
+
+      <button
+        type="button"
+        data-close-modal="qrModal"
+        class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-violet-600 dark:hover:bg-violet-700 text-white text-sm font-semibold transition-colors"
+      >
+        Zamknij
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== KONTENER POWIADOMIEŃ TOAST ==================== -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 left-5 sm:left-auto z-50 flex flex-col items-center sm:items-end gap-2 pointer-events-none"></div>
+
+  <!-- ==================== LOGIKA APLIKACJI I KLIENT API MAIL.TM ==================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      // ==========================================
+      // 1. KLIENT API MAIL.TM (https://api.mail.tm)
+      // ==========================================
+      class MailTmClient {
+        constructor(baseUrl = 'https://api.mail.tm') {
+          this.baseUrl = baseUrl;
+          this.token = null;
+        }
+
+        setToken(token) {
+          this.token = token;
+        }
+
+        /**
+         * Uniwersalna metoda zapytań HTTP z obsługą błędów 401, 422 i 429.
+         */
+        async request(endpoint, options = {}) {
+          const headers = {
+            Accept: 'application/ld+json',
+            ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+            ...(this.token ? { Authorization: `Bearer ${this.token}` } : {}),
+            ...(options.headers || {}),
+          };
+
+          const response = await fetch(`${this.baseUrl}${endpoint}`, {
+            ...options,
+            headers,
+          });
+
+          if (response.status === 204) {
+            return null;
+          }
+
+          let data = null;
+          try {
+            data = await response.json();
+          } catch (e) {
+            data = null;
+          }
+
+          if (!response.ok) {
+            const err = new Error(
+              (data && (data['hydra:description'] || data.detail || data.message)) ||
+                `Błąd API (${response.status})`
+            );
+            err.status = response.status;
+            err.data = data;
+            throw err;
+          }
+
+          return data;
+        }
+
+        /** GET /domains — pobiera aktywne domeny */
+        async getDomains() {
+          const data = await this.request('/domains', { method: 'GET' });
+          const members = (data && data['hydra:member']) || [];
+          return members.filter((d) => d.isActive !== false).map((d) => d.domain);
+        }
+
+        /** POST /accounts — tworzy nowe konto pocztowe */
+        async createAccount(address, password) {
+          return this.request('/accounts', {
+            method: 'POST',
+            body: JSON.stringify({ address, password }),
+          });
+        }
+
+        /** POST /token — pobiera token JWT dla konta */
+        async getToken(address, password) {
+          const data = await this.request('/token', {
+            method: 'POST',
+            body: JSON.stringify({ address, password }),
+          });
+          if (data && data.token) {
+            this.token = data.token;
+          }
+          return data;
+        }
+
+        /** GET /messages — pobiera listę wiadomości */
+        async getMessages() {
+          const data = await this.request('/messages?page=1', { method: 'GET' });
+          return (data && data['hydra:member']) || [];
+        }
+
+        /** GET /messages/{id} — pobiera pełną treść wiadomości */
+        async getMessageById(id) {
+          return this.request(`/messages/${encodeURIComponent(id)}`, { method: 'GET' });
+        }
+
+        /** DELETE /messages/{id} — usuwa pojedynczą wiadomość */
+        async deleteMessage(id) {
+          return this.request(`/messages/${encodeURIComponent(id)}`, { method: 'DELETE' });
+        }
+
+        /** DELETE /accounts/{id} — usuwa konto z serwera */
+        async deleteAccount(id) {
+          return this.request(`/accounts/${encodeURIComponent(id)}`, { method: 'DELETE' });
+        }
+      }
+
+      // ==========================================
+      // 2. KONFIGURACJA I STAN APLIKACJI
+      // ==========================================
+      const STORAGE_SESSION_KEY = 'znikmail_live_session_v1';
+      const STORAGE_THEME_KEY = 'znikmail_theme_v1';
+      const REFRESH_INTERVAL_SEC = 7;
+      const DEMO_DOMAINS = ['znikmail.demo', 'szybkapoczta.demo', 'chwilowka.demo'];
+
+      const api = new MailTmClient();
+
+      const state = {
+        mode: 'live', // 'live' | 'demo'
+        domains: [],
+        session: null, // { address, password, token, accountId }
+        messages: [], // ujednolicona lista wiadomości
+        messageDetailsCache: {}, // cache pełnych treści wiadomości po id
+        selectedMessageId: null,
+        detailViewMode: 'html', // 'html' | 'text'
+        searchQuery: '',
+        refreshCountdown: REFRESH_INTERVAL_SEC,
+        sessionSeconds: 0,
+        isBusy: false,
+        rateLimitBackoffUntil: 0,
+        demoCounter: 0,
+      };
+
+      const dom = {
+        modeLiveBtn: document.getElementById('modeLiveBtn'),
+        modeDemoBtn: document.getElementById('modeDemoBtn'),
+        liveDotWrapper: document.getElementById('liveDotWrapper'),
+        themeToggleBtn: document.getElementById('themeToggleBtn'),
+        refreshProgressBar: document.getElementById('refreshProgressBar'),
+        statusBadge: document.getElementById('statusBadge'),
+        statusBadgeText: document.getElementById('statusBadgeText'),
+        emailInput: document.getElementById('emailInput'),
+        copyEmailBtn: document.getElementById('copyEmailBtn'),
+        copyBtnText: document.getElementById('copyBtnText'),
+        copyBtnIcon: document.getElementById('copyBtnIcon'),
+        refreshBtn: document.getElementById('refreshBtn'),
+        refreshIcon: document.getElementById('refreshIcon'),
+        changeAddressBtn: document.getElementById('changeAddressBtn'),
+        newRandomBtn: document.getElementById('newRandomBtn'),
+        qrCodeBtn: document.getElementById('qrCodeBtn'),
+        deleteMailboxBtn: document.getElementById('deleteMailboxBtn'),
+        sessionTimer: document.getElementById('sessionTimer'),
+        resetSessionTimerBtn: document.getElementById('resetSessionTimerBtn'),
+        unreadBadge: document.getElementById('unreadBadge'),
+        searchInput: document.getElementById('searchInput'),
+        sendDemoEmailBtn: document.getElementById('sendDemoEmailBtn'),
+        messageListPane: document.getElementById('messageListPane'),
+        messageDetailPane: document.getElementById('messageDetailPane'),
+        changeAddressModal: document.getElementById('changeAddressModal'),
+        changeAddressForm: document.getElementById('changeAddressForm'),
+        customUsernameInput: document.getElementById('customUsernameInput'),
+        domainSelect: document.getElementById('domainSelect'),
+        randomizeUsernameBtn: document.getElementById('randomizeUsernameBtn'),
+        saveCustomAddressBtn: document.getElementById('saveCustomAddressBtn'),
+        qrModal: document.getElementById('qrModal'),
+        qrContainer: document.getElementById('qrContainer'),
+        qrEmailLabel: document.getElementById('qrEmailLabel'),
+        toastContainer: document.getElementById('toastContainer'),
+        currentYear: document.getElementById('currentYear'),
+      };
+
+      // ==========================================
+      // 3. NARZĘDZIA POMOCNICZE
+      // ==========================================
+
+      function escapeHtml(str) {
+        return String(str ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      /**
+       * Kopiowanie do schowka zgodne z iFrame (document.execCommand('copy')).
+       */
+      function copyToClipboard(text, successMsg = 'Skopiowano do schowka!') {
+        let copied = false;
+        try {
+          const textarea = document.createElement('textarea');
+          textarea.value = text;
+          textarea.setAttribute('readonly', '');
+          textarea.style.position = 'fixed';
+          textarea.style.left = '-9999px';
+          textarea.style.top = '0';
+          document.body.appendChild(textarea);
+          textarea.select();
+          textarea.setSelectionRange(0, 99999);
+          copied = document.execCommand('copy');
+          document.body.removeChild(textarea);
+        } catch (e) {
+          copied = false;
+        }
+
+        if (copied) {
+          showToast(successMsg, 'success');
+          return true;
+        }
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard
+            .writeText(text)
+            .then(() => showToast(successMsg, 'success'))
+            .catch(() => showToast('Zaznacz tekst i skopiuj ręcznie (Ctrl+C).', 'warning'));
+          return true;
+        }
+
+        showToast('Zaznacz tekst i skopiuj ręcznie (Ctrl+C).', 'warning');
+        return false;
+      }
+
+      function showToast(message, type = 'info') {
+        const styles = {
+          success: 'bg-emerald-600 text-white shadow-emerald-600/25',
+          info: 'bg-slate-900 dark:bg-indigo-600 text-white shadow-slate-900/20',
+          warning: 'bg-amber-500 text-white shadow-amber-500/25',
+          error: 'bg-rose-600 text-white shadow-rose-600/25',
+        };
+        const icons = {
+          success: '<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />',
+          info: '<path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />',
+          warning: '<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />',
+          error: '<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />',
+        };
+
+        const toast = document.createElement('div');
+        toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-2xl text-sm font-medium shadow-lg animate-slide-up max-w-sm ${styles[type] || styles.info}`;
+        toast.innerHTML = `
+          <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            ${icons[type] || icons.info}
+          </svg>
+          <span>${escapeHtml(message)}</span>
+        `;
+        dom.toastContainer.appendChild(toast);
+
+        setTimeout(() => {
+          toast.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateY(8px)';
+          setTimeout(() => toast.remove(), 260);
+        }, 3400);
+      }
+
+      function generateRandomLogin(prefix = '') {
+        const syllables = ['znik', 'blys', 'chmur', 'iskr', 'komet', 'nov', 'vel', 'mir', 'sol', 'zen', 'kors', 'lum'];
+        const cleanPrefix = prefix
+          .toLowerCase()
+          .replace(/[^a-z0-9._-]/g, '')
+          .slice(0, 16);
+
+        const randNum = Math.floor(100 + Math.random() * 8999);
+        if (cleanPrefix && cleanPrefix.length >= 3) {
+          return `${cleanPrefix}${randNum}`;
+        }
+        const part1 = syllables[Math.floor(Math.random() * syllables.length)];
+        const part2 = syllables[Math.floor(Math.random() * syllables.length)];
+        return `${part1}${part2}${randNum}`;
+      }
+
+      function generateRandomPassword() {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#';
+        let pass = '';
+        for (let i = 0; i < 18; i++) {
+          pass += chars[Math.floor(Math.random() * chars.length)];
+        }
+        return pass;
+      }
+
+      function getUrlLoginSuggestion() {
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const login = params.get('login');
+          if (login && /^[a-zA-Z0-9._-]{3,24}$/.test(login.trim())) {
+            return login.trim().toLowerCase();
+          }
+        } catch (e) {}
+        return '';
+      }
+
+      function formatDuration(sec) {
+        const m = Math.floor(sec / 60);
+        const s = sec % 60;
+        return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      }
+
+      function formatShortTime(isoOrDate) {
+        const d = new Date(isoOrDate);
+        if (isNaN(d.getTime())) return '--:--';
+        return d.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+      }
+
+      function formatFullDate(isoOrDate) {
+        const d = new Date(isoOrDate);
+        if (isNaN(d.getTime())) return '';
+        return d.toLocaleString('pl-PL', {
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+      }
+
+      /**
+       * Inteligentny detektor kodów weryfikacyjnych OTP (4-8 cyfr).
+       * Najpierw szuka kodu w pobliżu słów kluczowych, a następnie samodzielnego ciągu cyfr.
+       */
+      function extractOtpCode(subject = '', text = '') {
+        const combined = `${subject}\n${text}`;
+        if (!combined.trim()) return null;
+
+        // 1. Wzorce ze słowami kluczowymi (PL i EN)
+        const keywordRegex =
+          /(?:kod(?:em|u)?|weryfikacyjn\w*|otp|pin|token|code|verification|passcode|hasło\s+jednorazowe)[^0-9a-zA-Z]{0,20}(\d{3}\s\d{3}|\d{4,8})\b/i;
+        const kwMatch = combined.match(keywordRegex);
+        if (kwMatch && kwMatch[1]) {
+          return kwMatch[1].replace(/\s+/g, '');
+        }
+
+        // 2. Wyraźny format XXX XXX lub samodzielny 6-cyfrowy kod
+        const spacedSix = combined.match(/\b(\d{3}\s\d{3})\b/);
+        if (spacedSix) {
+          return spacedSix[1].replace(/\s+/g, '');
+        }
+
+        // 3. Samodzielny kod 4-8 cyfr (z wykluczeniem typowych lat 1990-2035)
+        const genericMatches = combined.match(/\b(\d{4,8})\b/g);
+        if (genericMatches) {
+          for (const candidate of genericMatches) {
+            const num = Number(candidate);
+            if (candidate.length === 4 && num >= 1990 && num <= 2035) {
+              continue;
+            }
+            return candidate;
+          }
+        }
+        return null;
+      }
+
+      function getAvatarColor(seed = '') {
+        const palette = [
+          'bg-indigo-600',
+          'bg-violet-600',
+          'bg-cyan-600',
+          'bg-emerald-600',
+          'bg-blue-600',
+          'bg-fuchsia-600',
+          'bg-amber-600',
+        ];
+        let hash = 0;
+        for (let i = 0; i < seed.length; i++) {
+          hash = seed.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        return palette[Math.abs(hash) % palette.length];
+      }
+
+      function getInitials(name = '', email = '') {
+        const source = (name || email || '?').trim();
+        const parts = source.split(/[\s.@_-]+/).filter(Boolean);
+        if (parts.length >= 2) {
+          return (parts[0][0] + parts[1][0]).toUpperCase();
+        }
+        return source.slice(0, 2).toUpperCase();
+      }
+
+      // ==========================================
+      // 4. ZARZĄDZANIE SESJĄ W LOCALSTORAGE
+      // ==========================================
+
+      function saveLiveSession(session) {
+        try {
+          localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(session));
+        } catch (e) {}
+      }
+
+      function loadLiveSession() {
+        try {
+          const raw = localStorage.getItem(STORAGE_SESSION_KEY);
+          if (!raw) return null;
+          const parsed = JSON.parse(raw);
+          if (parsed && parsed.address && parsed.password && parsed.token && parsed.accountId) {
+            return parsed;
+          }
+        } catch (e) {}
+        return null;
+      }
+
+      function clearLiveSession() {
+        try {
+          localStorage.removeItem(STORAGE_SESSION_KEY);
+        } catch (e) {}
+      }
+
+      // ==========================================
+      // 5. TRYB NA ŻYWO (MAIL.TM) ORAZ TRYB DEMO
+      // ==========================================
+
+      function updateModeUI() {
+        const isLive = state.mode === 'live';
+
+        if (isLive) {
+          dom.modeLiveBtn.className =
+            'inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-300 shadow-sm transition-all';
+          dom.modeDemoBtn.className =
+            'inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-all';
+          dom.sendDemoEmailBtn.classList.add('hidden');
+          dom.sendDemoEmailBtn.classList.remove('inline-flex');
+          dom.statusBadge.className =
+            'inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200/70 dark:border-emerald-800/60';
+        } else {
+          dom.modeDemoBtn.className =
+            'inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-900 text-amber-700 dark:text-amber-300 shadow-sm transition-all';
+          dom.modeLiveBtn.className =
+            'inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-all';
+          dom.sendDemoEmailBtn.classList.remove('hidden');
+          dom.sendDemoEmailBtn.classList.add('inline-flex');
+          dom.statusBadge.className =
+            'inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200/70 dark:border-amber-800/60';
+        }
+
+        updateStatusBadgeText();
+      }
+
+      function updateStatusBadgeText() {
+        if (state.mode === 'live') {
+          dom.statusBadgeText.innerHTML = `Tryb Na Żywo (API Mail.tm) • Auto-odświeżanie za <strong class="font-mono">${state.refreshCountdown}</strong>s`;
+        } else {
+          dom.statusBadgeText.innerHTML = `Tryb Demo (Symulacja offline) • Kliknij „Wyślij testowy e-mail”`;
+        }
+      }
+
+      /**
+       * Inicjuje tryb Na Żywo: wczytuje domeny, przywraca zapisaną sesję lub tworzy nowe konto.
+       */
+      async function initLiveMode(forceNew = false, customLogin = '', customDomain = '') {
+        state.mode = 'live';
+        updateModeUI();
+        setBusy(true, 'Łączenie z Mail.tm...');
+
+        try {
+          // 1. Pobierz aktualną listę domen (jeśli jeszcze brak)
+          if (state.domains.length === 0 || state.domains[0].endsWith('.demo')) {
+            const liveDomains = await api.getDomains();
+            if (!liveDomains.length) {
+              throw new Error('Brak aktywnych domen po stronie API.');
+            }
+            state.domains = liveDomains;
+          }
+
+          // 2. Sprawdź, czy możemy przywrócić zapisaną sesję
+          const saved = !forceNew && !customLogin ? loadLiveSession() : null;
+          if (saved) {
+            api.setToken(saved.token);
+            try {
+              const msgs = await api.getMessages();
+              state.session = saved;
+              dom.emailInput.value = saved.address;
+              state.messages = normalizeLiveMessages(msgs);
+              state.messageDetailsCache = {};
+              state.selectedMessageId = null;
+              setBusy(false);
+              renderInbox();
+              showToast(`Przywrócono aktywną skrzynkę: ${saved.address}`, 'info');
+              return;
+            } catch (err) {
+              // Jeśli token wygasł (401), spróbuj odświeżyć token hasłem
+              if (err.status === 401) {
+                try {
+                  const tok = await api.getToken(saved.address, saved.password);
+                  saved.token = tok.token;
+                  saveLiveSession(saved);
+                  const msgs = await api.getMessages();
+                  state.session = saved;
+                  dom.emailInput.value = saved.address;
+                  state.messages = normalizeLiveMessages(msgs);
+                  state.selectedMessageId = null;
+                  setBusy(false);
+                  renderInbox();
+                  return;
+                } catch (reauthErr) {
+                  clearLiveSession();
+                }
+              } else if (err.status === 429) {
+                handleRateLimit();
+                state.session = saved;
+                dom.emailInput.value = saved.address;
+                setBusy(false);
+                renderInbox();
+                return;
+              } else {
+                clearLiveSession();
+              }
+            }
+          }
+
+          // 3. Utwórz nowe prawdziwe konto w Mail.tm
+          const domain = customDomain && state.domains.includes(customDomain)
+            ? customDomain
+            : state.domains[0];
+          const urlSuggestion = getUrlLoginSuggestion();
+          const login = customLogin || generateRandomLogin(urlSuggestion);
+          const address = `${login}@${domain}`.toLowerCase();
+          const password = generateRandomPassword();
+
+          api.setToken(null);
+          const account = await api.createAccount(address, password);
+          const tokenResp = await api.getToken(address, password);
+
+          state.session = {
+            address: account.address || address,
+            password,
+            token: tokenResp.token,
+            accountId: account.id || tokenResp.id,
+          };
+          saveLiveSession(state.session);
+
+          dom.emailInput.value = state.session.address;
+          state.messages = [];
+          state.messageDetailsCache = {};
+          state.selectedMessageId = null;
+          state.sessionSeconds = 0;
+          state.refreshCountdown = REFRESH_INTERVAL_SEC;
+
+          setBusy(false);
+          renderInbox();
+          showToast(`Utworzono prawdziwą skrzynkę: ${state.session.address}`, 'success');
+        } catch (err) {
+          setBusy(false);
+
+          if (err.status === 422) {
+            showToast('Ten login jest już zajęty. Wybierz inną nazwę użytkownika.', 'error');
+            return;
+          }
+          if (err.status === 429) {
+            handleRateLimit();
+            return;
+          }
+
+          // Automatyczny fallback do trybu Demo przy braku sieci / blokadzie CORS / awarii API
+          showToast('Nie udało się połączyć z API Mail.tm — przełączono w tryb Demo.', 'warning');
+          initDemoMode(customLogin);
+        }
+      }
+
+      /**
+       * Przełącza aplikację w tryb Demo (symulacja offline).
+       */
+      function initDemoMode(customLogin = '', customDomain = '') {
+        state.mode = 'demo';
+        state.domains = [...DEMO_DOMAINS];
+        const domain = customDomain && DEMO_DOMAINS.includes(customDomain)
+          ? customDomain
+          : DEMO_DOMAINS[0];
+        const login = customLogin || generateRandomLogin(getUrlLoginSuggestion());
+        const address = `${login}@${domain}`.toLowerCase();
+
+        state.session = {
+          address,
+          password: '',
+          token: 'demo-token',
+          accountId: 'demo-account',
+        };
+        dom.emailInput.value = address;
+        state.messages = [];
+        state.messageDetailsCache = {};
+        state.selectedMessageId = null;
+        state.sessionSeconds = 0;
+
+        updateModeUI();
+        // Dodaj jedną wiadomość powitalną w trybie Demo
+        addDemoMessage('welcome', true);
+        renderInbox();
+      }
+
+      function handleRateLimit() {
+        state.rateLimitBackoffUntil = Date.now() + 20000;
+        showToast('Zbyt wiele zapytań do API (limit 429). Odczekaj 20 sekund przed kolejnym odświeżeniem.', 'warning');
+      }
+
+      function setBusy(flag, placeholderText = '') {
+        state.isBusy = flag;
+        if (flag && placeholderText) {
+          dom.emailInput.value = placeholderText;
+        }
+        dom.newRandomBtn.disabled = flag;
+        dom.deleteMailboxBtn.disabled = flag;
+        dom.changeAddressBtn.disabled = flag;
+      }
+
+      /**
+       * Normalizuje tablicę wiadomości z API Mail.tm do jednolitego formatu UI.
+       */
+      function normalizeLiveMessages(rawList) {
+        return rawList.map((m) => ({
+          id: m.id,
+          fromName: (m.from && m.from.name) || (m.from && m.from.address) || 'Nieznany nadawca',
+          fromAddress: (m.from && m.from.address) || '',
+          toAddress:
+            Array.isArray(m.to) && m.to[0] ? m.to[0].address : state.session ? state.session.address : '',
+          subject: m.subject || '(Brak tematu)',
+          intro: m.intro || '',
+          createdAt: m.createdAt || new Date().toISOString(),
+          seen: Boolean(m.seen),
+          isDemo: false,
+        }));
+      }
+
+      /**
+       * Pobiera listę wiadomości z Mail.tm (odświeżanie ręczne lub co 7s).
+       */
+      async function refreshMessages(manual = false) {
+        if (state.isBusy) return;
+
+        // Animacja ikony odświeżania
+        dom.refreshIcon.classList.remove('animate-spin-once');
+        void dom.refreshIcon.offsetWidth;
+        dom.refreshIcon.classList.add('animate-spin-once');
+
+        state.refreshCountdown = REFRESH_INTERVAL_SEC;
+        updateRefreshProgress();
+
+        if (state.mode === 'demo') {
+          if (manual) showToast('Tryb Demo: użyj przycisku „Wyślij testowy e-mail”.', 'info');
+          return;
+        }
+
+        if (!state.session || !state.session.token) return;
+
+        if (Date.now() < state.rateLimitBackoffUntil) {
+          if (manual) showToast('Chwilowy limit zapytań API — spróbuj za moment.', 'warning');
+          return;
+        }
+
+        try {
+          const prevCount = state.messages.length;
+          const prevIds = new Set(state.messages.map((m) => m.id));
+          const raw = await api.getMessages();
+          const normalized = normalizeLiveMessages(raw);
+
+          // Zachowaj lokalny stan przeczytania dla otwartych wiadomości
+          const locallySeen = new Set(state.messages.filter((m) => m.seen).map((m) => m.id));
+          normalized.forEach((m) => {
+            if (locallySeen.has(m.id)) m.seen = true;
+          });
+
+          state.messages = normalized;
+          renderInbox();
+
+          const newOnes = normalized.filter((m) => !prevIds.has(m.id));
+          if (newOnes.length > 0 && prevCount >= 0) {
+            showToast(`Odebrano nową wiadomość od: ${newOnes[0].fromName}`, 'success');
+          } else if (manual) {
+            showToast('Skrzynka odświeżona — brak nowych wiadomości.', 'info');
+          }
+        } catch (err) {
+          if (err.status === 429) {
+            handleRateLimit();
+          } else if (err.status === 401 && state.session) {
+            try {
+              const tok = await api.getToken(state.session.address, state.session.password);
+              state.session.token = tok.token;
+              saveLiveSession(state.session);
+            } catch (e) {
+              if (manual) showToast('Sesja wygasła. Kliknij „Nowy losowy”.', 'error');
+            }
+          } else if (manual) {
+            showToast('Błąd połączenia z serwerem Mail.tm.', 'error');
+          }
+        }
+      }
+
+      /**
+       * Pobiera pełną treść wybranej wiadomości (z cache lub z API Mail.tm).
+       */
+      async function selectMessage(id) {
+        const msg = state.messages.find((m) => m.id === id);
+        if (!msg) return;
+
+        msg.seen = true;
+        state.selectedMessageId = id;
+        renderInbox();
+
+        if (!state.messageDetailsCache[id] && state.mode === 'live') {
+          // Pokaż stan ładowania w prawym panelu
+          renderDetailLoading();
+          try {
+            const full = await api.getMessageById(id);
+            const htmlBody = Array.isArray(full.html) ? full.html.join('\n') : full.html || '';
+            const textBody = full.text || full.intro || '';
+            state.messageDetailsCache[id] = {
+              ...msg,
+              html: htmlBody,
+              text: textBody,
+            };
+          } catch (err) {
+            showToast('Nie udało się pobrać pełnej treści wiadomości.', 'error');
+            state.messageDetailsCache[id] = {
+              ...msg,
+              html: '',
+              text: msg.intro || 'Brak treści.',
+            };
+          }
+          renderMessageDetail();
+        }
+      }
+
+      /**
+       * Usuwa pojedynczą wiadomość (z serwera w trybie Live lub lokalnie w Demo).
+       */
+      async function deleteSingleMessage(id) {
+        if (state.mode === 'live') {
+          try {
+            await api.deleteMessage(id);
+          } catch (err) {
+            if (err.status === 429) {
+              handleRateLimit();
+              return;
+            }
+          }
+        }
+
+        state.messages = state.messages.filter((m) => m.id !== id);
+        delete state.messageDetailsCache[id];
+        if (state.selectedMessageId === id) {
+          state.selectedMessageId = null;
+        }
+        renderInbox();
+        showToast('Usunięto wiadomość.', 'info');
+      }
+
+      /**
+       * Usuwa całą skrzynkę z serwera API i tworzy nową losową.
+       */
+      async function deleteMailboxAndRecreate() {
+        if (state.isBusy) return;
+
+        if (state.mode === 'live' && state.session && state.session.accountId) {
+          setBusy(true, 'Usuwanie konta...');
+          try {
+            await api.deleteAccount(state.session.accountId);
+          } catch (e) {
+            // Nawet jeśli konto już nie istnieje, przejdź do utworzenia nowego
+          }
+          clearLiveSession();
+          await initLiveMode(true);
+        } else {
+          initDemoMode();
+          showToast('Usunięto skrzynkę Demo i wygenerowano nową.', 'success');
+        }
+      }
+
+      // ==========================================
+      // 6. GENERATOR WIADOMOŚCI DLA TRYBU DEMO
+      // ==========================================
+
+      function addDemoMessage(forcedType = null, silent = false) {
+        const types = ['otp', 'register', 'invoice'];
+        const type = forcedType || types[state.demoCounter % types.length];
+        state.demoCounter++;
+
+        const id = 'demo_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6);
+        const now = new Date().toISOString();
+        const toAddr = state.session ? state.session.address : 'demo@znikmail.demo';
+
+        let msgObj;
+        if (type === 'welcome') {
+          msgObj = {
+            id,
+            fromName: 'Zespół ZnikMail',
+            fromAddress: 'powitanie@znikmail.demo',
+            toAddress: toAddr,
+            subject: 'Witaj w trybie Demo ZnikMail!',
+            intro: 'Przetestuj działanie skrzynki lub przełącz się na tryb Na Żywo u góry strony.',
+            createdAt: now,
+            seen: false,
+            isDemo: true,
+            text: `Witaj w ZnikMail (Tryb Demo)!\n\nTwój tymczasowy adres: ${toAddr}\nKliknij "Wyślij testowy e-mail", aby zasymulować odbiór wiadomości z kodem weryfikacyjnym OTP.`,
+            html: `<div style="font-family:Inter,sans-serif;color:#1e293b;padding:20px;line-height:1.6;">
+              <h2 style="margin:0 0 12px;color:#4f46e5;">Witaj w ZnikMail (Tryb Demo)</h2>
+              <p>Twój testowy adres: <strong style="font-family:monospace;">${escapeHtml(toAddr)}</strong></p>
+              <p>Użyj przycisku <strong>„Wyślij testowy e-mail”</strong>, aby sprawdzić automatyczne wykrywanie kodów OTP, przełączanie HTML/Tekst oraz eksport do pliku <code>.eml</code>.</p>
+              <p style="font-size:12px;color:#64748b;margin-top:20px;">Aby odbierać prawdziwe maile z internetu, wybierz <strong>Na Żywo</strong> w górnym pasku.</p>
+            </div>`,
+          };
+        } else if (type === 'otp') {
+          const code = String(Math.floor(100000 + Math.random() * 900000));
+          msgObj = {
+            id,
+            fromName: 'ChmuraID Bezpieczeństwo',
+            fromAddress: 'security@chmuraid.pl',
+            toAddress: toAddr,
+            subject: `Twój kod weryfikacyjny: ${code}`,
+            intro: `Wprowadź kod ${code}, aby dokończyć logowanie do swojego konta.`,
+            createdAt: now,
+            seen: false,
+            isDemo: true,
+            text: `Cześć!\n\nTwój jednorazowy kod weryfikacyjny (OTP) to: ${code}\nKod wygaśnie za 10 minut.`,
+            html: `<div style="font-family:Inter,sans-serif;color:#0f172a;padding:24px;max-width:520px;">
+              <p style="margin:0 0 16px;">Otrzymaliśmy prośbę o potwierdzenie adresu <code>${escapeHtml(toAddr)}</code>.</p>
+              <div style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:14px;padding:20px;text-align:center;">
+                <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#64748b;margin-bottom:8px;">Jednorazowy kod weryfikacyjny</div>
+                <div style="font-family:monospace;font-size:32px;font-weight:700;letter-spacing:6px;color:#4f46e5;">${code}</div>
+              </div>
+              <p style="font-size:12px;color:#64748b;margin-top:16px;">Jeśli to nie Ty próbowałeś się zalogować, zignoruj tę wiadomość.</p>
+            </div>`,
+          };
+        } else if (type === 'register') {
+          const pin = String(Math.floor(1000 + Math.random() * 8999));
+          msgObj = {
+            id,
+            fromName: 'Klub Programisty',
+            fromAddress: 'noreply@klubprogramisty.pl',
+            toAddress: toAddr,
+            subject: 'Potwierdź rejestrację konta',
+            intro: `Twój kod PIN do aktywacji konta to ${pin}. Kliknij link, aby dokończyć.`,
+            createdAt: now,
+            seen: false,
+            isDemo: true,
+            text: `Dziękujemy za rejestrację w Klubie Programisty!\nTwój kod PIN aktywacyjny: ${pin}\nPozdrawiamy, Zespół.`,
+            html: `<div style="font-family:Inter,sans-serif;color:#1e293b;padding:24px;line-height:1.6;">
+              <h3 style="margin:0 0 10px;color:#0f172a;">Potwierdź swój adres e-mail</h3>
+              <p>Dziękujemy za dołączenie do naszej społeczności. Wpisz kod PIN <strong>${pin}</strong> na stronie rejestracji lub kliknij przycisk:</p>
+              <p style="margin:20px 0;"><a href="#aktywacja" style="display:inline-block;background:#4f46e5;color:#fff;text-decoration:none;padding:10px 20px;border-radius:10px;font-weight:600;">Aktywuj konto</a></p>
+            </div>`,
+          };
+        } else {
+          msgObj = {
+            id,
+            fromName: 'Sklep Cyfrowy',
+            fromAddress: 'zamowienia@sklepcyfrowy.pl',
+            toAddress: toAddr,
+            subject: 'Potwierdzenie pobrania darmowego e-booka',
+            intro: 'Twój poradnik PDF jest gotowy do pobrania. Dziękujemy za skorzystanie z oferty.',
+            createdAt: now,
+            seen: false,
+            isDemo: true,
+            text: `Dziękujemy!\nTwój bezpłatny e-book „Bezpieczeństwo w sieci 2026” został przypisany do adresu ${toAddr}.`,
+            html: `<div style="font-family:Inter,sans-serif;color:#1e293b;padding:24px;line-height:1.6;">
+              <h3 style="margin:0 0 10px;color:#059669;">Materiały są gotowe!</h3>
+              <p>Dziękujemy za zapis. Twój poradnik PDF został wygenerowany i jest gotowy do lektury.</p>
+              <table style="width:100%;border-collapse:collapse;margin-top:14px;font-size:14px;">
+                <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:8px 0;">E-book: Bezpieczeństwo w sieci</td><td style="text-align:right;font-weight:600;color:#059669;">0,00 zł</td></tr>
+              </table>
+            </div>`,
+          };
+        }
+
+        state.messages.unshift(msgObj);
+        state.messageDetailsCache[msgObj.id] = msgObj;
+        renderInbox();
+        if (!silent) {
+          showToast(`Odebrano testową wiadomość od: ${msgObj.fromName}`, 'success');
+        }
+      }
+
+      // ==========================================
+      // 7. RENDEROWANIE SKRZYNKI I PODGLĄDU
+      // ==========================================
+
+      function getFilteredMessages() {
+        const q = state.searchQuery.trim().toLowerCase();
+        if (!q) return state.messages;
+        return state.messages.filter((m) => {
+          const cached = state.messageDetailsCache[m.id];
+          const textPool = `${m.fromName} ${m.fromAddress} ${m.subject} ${m.intro} ${cached ? cached.text : ''}`.toLowerCase();
+          return textPool.includes(q);
+        });
+      }
+
+      function updateUnreadBadge() {
+        const total = state.messages.length;
+        const unread = state.messages.filter((m) => !m.seen).length;
+        if (unread > 0) {
+          const word = unread === 1 ? 'nowa' : unread < 5 ? 'nowe' : 'nowych';
+          dom.unreadBadge.textContent = `${unread} ${word} (${total})`;
+          dom.unreadBadge.className =
+            'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300';
+        } else {
+          const word = total === 1 ? 'wiadomość' : total >= 2 && total <= 4 ? 'wiadomości' : 'wiadomości';
+          dom.unreadBadge.textContent = `${total} ${word}`;
+          dom.unreadBadge.className =
+            'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-200/80 text-slate-600 dark:bg-slate-800 dark:text-slate-400';
+        }
+      }
+
+      function renderInbox() {
+        updateUnreadBadge();
+        const filtered = getFilteredMessages();
+
+        if (filtered.length === 0) {
+          const isSearching = state.searchQuery.trim().length > 0;
+          const emptyTitle = isSearching
+            ? 'Brak pasujących wiadomości'
+            : state.mode === 'live'
+            ? 'Oczekiwanie na prawdziwe wiadomości...'
+            : 'Skrzynka Demo jest pusta';
+          const emptyDesc = isSearching
+            ? 'Zmień wyszukiwaną frazę, aby zobaczyć pozostałe wiadomości.'
+            : state.mode === 'live'
+            ? 'Wyślij e-mail na powyższy adres z dowolnej poczty — pojawi się tutaj automatycznie.'
+            : 'Kliknij zielony przycisk „Wyślij testowy e-mail”, aby przetestować odbieranie wiadomości.';
+
+          dom.messageListPane.innerHTML = `
+            <div class="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4">
+              <div class="relative flex items-center justify-center w-16 h-16">
+                ${
+                  !isSearching
+                    ? '<span class="animate-ping absolute inline-flex h-12 w-12 rounded-full bg-cyan-400/35"></span>'
+                    : ''
+                }
+                <div class="relative flex items-center justify-center w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 text-violet-600 dark:text-violet-400">
+                  <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+              </div>
+              <div class="space-y-1">
+                <p class="font-semibold text-slate-800 dark:text-slate-200 text-sm">${escapeHtml(emptyTitle)}</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400 max-w-xs">${escapeHtml(emptyDesc)}</p>
+              </div>
+            </div>
+          `;
+        } else {
+          dom.messageListPane.innerHTML = filtered
+            .map((msg) => {
+              const isSelected = msg.id === state.selectedMessageId;
+              const initials = getInitials(msg.fromName, msg.fromAddress);
+              const avatarColor = getAvatarColor(msg.fromAddress || msg.fromName);
+              const quickOtp = extractOtpCode(msg.subject, msg.intro);
+
+              return `
+                <div
+                  data-msg-id="${escapeHtml(msg.id)}"
+                  class="message-item group relative flex items-start gap-3 p-4 border-b border-slate-100 dark:border-slate-800/80 cursor-pointer transition-colors ${
+                    isSelected
+                      ? 'bg-violet-50/90 dark:bg-violet-950/35'
+                      : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                  }"
+                >
+                  ${
+                    isSelected
+                      ? '<span class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-indigo-600 to-cyan-500"></span>'
+                      : ''
+                  }
+
+                  <div class="relative shrink-0 w-10 h-10 rounded-xl ${avatarColor} text-white font-bold text-xs flex items-center justify-center shadow-sm">
+                    ${escapeHtml(initials)}
+                    ${
+                      !msg.seen
+                        ? '<span class="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-cyan-500 ring-2 ring-white dark:ring-slate-900" title="Nieprzeczytana"></span>'
+                        : ''
+                    }
+                  </div>
+
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between gap-2">
+                      <span class="text-sm truncate ${
+                        !msg.seen
+                          ? 'font-bold text-slate-900 dark:text-white'
+                          : 'font-medium text-slate-700 dark:text-slate-300'
+                      }">
+                        ${escapeHtml(msg.fromName)}
+                      </span>
+                      <span class="text-[11px] font-mono text-slate-400 shrink-0">
+                        ${escapeHtml(formatShortTime(msg.createdAt))}
+                      </span>
+                    </div>
+                    <p class="text-xs sm:text-sm truncate mt-0.5 ${
+                      !msg.seen
+                        ? 'font-semibold text-slate-800 dark:text-slate-100'
+                        : 'text-slate-600 dark:text-slate-400'
+                    }">
+                      ${escapeHtml(msg.subject)}
+                    </p>
+                    <div class="flex items-center gap-2 mt-1">
+                      ${
+                        quickOtp
+                          ? `<span class="inline-flex items-center px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-mono text-[10px] font-bold shrink-0">OTP: ${escapeHtml(quickOtp)}</span>`
+                          : ''
+                      }
+                      <p class="text-xs text-slate-500 dark:text-slate-400 truncate">
+                        ${escapeHtml(msg.intro || 'Kliknij, aby odczytać treść...')}
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    data-delete-id="${escapeHtml(msg.id)}"
+                    title="Usuń wiadomość"
+                    aria-label="Usuń wiadomość"
+                    class="opacity-100 sm:opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-all shrink-0 self-center"
+                  >
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+              `;
+            })
+            .join('');
+        }
+
+        renderMessageDetail();
+      }
+
+      function renderDetailLoading() {
+        dom.messageListPane.classList.add('hidden', 'lg:flex');
+        dom.messageDetailPane.classList.remove('hidden');
+        dom.messageDetailPane.classList.add('flex');
+        dom.messageDetailPane.innerHTML = `
+          <div class="flex-1 flex flex-col items-center justify-center p-8 text-center text-slate-400 space-y-3">
+            <svg class="w-8 h-8 animate-spin text-violet-500" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            <p class="text-sm">Pobieranie treści wiadomości...</p>
+          </div>
+        `;
+      }
+
+      function renderMessageDetail() {
+        const msg = state.messages.find((m) => m.id === state.selectedMessageId);
+        if (!msg) {
+          dom.messageListPane.classList.remove('hidden');
+          dom.messageDetailPane.classList.add('hidden', 'lg:flex');
+          dom.messageDetailPane.classList.remove('flex');
+
+          dom.messageDetailPane.innerHTML = `
+            <div class="flex-1 flex flex-col items-center justify-center p-8 text-center text-slate-400 dark:text-slate-500 space-y-3">
+              <div class="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800/80 flex items-center justify-center">
+                <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" />
+                </svg>
+              </div>
+              <p class="text-sm font-medium text-slate-600 dark:text-slate-400">
+                Wybierz wiadomość z listy, aby wyświetlić jej pełną treść
+              </p>
+            </div>
+          `;
+          return;
+        }
+
+        const detail = state.messageDetailsCache[msg.id] || { ...msg, html: '', text: msg.intro || '' };
+        const hasHtml = Boolean(detail.html && detail.html.trim().length > 0);
+        const viewMode = hasHtml ? state.detailViewMode : 'text';
+
+        // Wykryj kod OTP w temacie lub treści tekstowej/HTML
+        const strippedHtml = (detail.html || '').replace(/<[^>]+>/g, ' ');
+        const detectedOtp = extractOtpCode(detail.subject, `${detail.text || ''}\n${strippedHtml}`);
+
+        dom.messageListPane.classList.add('hidden', 'lg:flex');
+        dom.messageDetailPane.classList.remove('hidden');
+        dom.messageDetailPane.classList.add('flex');
+
+        const initials = getInitials(detail.fromName, detail.fromAddress);
+        const avatarColor = getAvatarColor(detail.fromAddress || detail.fromName);
+
+        dom.messageDetailPane.innerHTML = `
+          <div class="flex flex-col h-full animate-fade-in">
+            <!-- Pasek narzędzi wiadomości -->
+            <div class="px-4 sm:px-6 py-3 border-b border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-wrap items-center justify-between gap-2">
+              <button
+                type="button"
+                id="backToListBtn"
+                class="lg:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200"
+              >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+                Wróć
+              </button>
+
+              <!-- Przełącznik widoku HTML / Tekst -->
+              <div class="inline-flex items-center p-0.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 text-xs">
+                <button
+                  type="button"
+                  data-view-mode="html"
+                  ${!hasHtml ? 'disabled' : ''}
+                  class="px-2.5 py-1 rounded-lg font-semibold transition-colors ${
+                    viewMode === 'html'
+                      ? 'bg-white dark:bg-slate-900 text-violet-600 dark:text-violet-400 shadow-sm'
+                      : 'text-slate-500 dark:text-slate-400 disabled:opacity-40'
+                  }"
+                >
+                  HTML
+                </button>
+                <button
+                  type="button"
+                  data-view-mode="text"
+                  class="px-2.5 py-1 rounded-lg font-semibold transition-colors ${
+                    viewMode === 'text'
+                      ? 'bg-white dark:bg-slate-900 text-violet-600 dark:text-violet-400 shadow-sm'
+                      : 'text-slate-500 dark:text-slate-400'
+                  }"
+                >
+                  Tekst
+                </button>
+              </div>
+
+              <div class="flex items-center gap-1.5 ml-auto">
+                <button
+                  type="button"
+                  id="downloadEmlBtn"
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-200 transition-colors"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  Pobierz .eml
+                </button>
+
+                <button
+                  type="button"
+                  id="deleteDetailMsgBtn"
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/50 dark:hover:bg-rose-900/60 text-xs font-medium text-rose-600 dark:text-rose-400 transition-colors"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  Usuń
+                </button>
+              </div>
+            </div>
+
+            <!-- Pasek automatycznie wykrytego kodu OTP -->
+            ${
+              detectedOtp
+                ? `
+                  <div class="px-5 py-3 bg-gradient-to-r from-emerald-500/15 via-cyan-500/15 to-indigo-500/15 border-b border-emerald-200/80 dark:border-emerald-800/60 flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-2.5">
+                      <span class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                        </svg>
+                      </span>
+                      <div>
+                        <div class="text-[11px] font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">Wykryto kod weryfikacyjny</div>
+                        <div class="font-mono text-lg font-bold tracking-widest text-slate-900 dark:text-white">${escapeHtml(detectedOtp)}</div>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      data-copy-otp="${escapeHtml(detectedOtp)}"
+                      class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-sm transition-colors"
+                    >
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                      Kopiuj kod
+                    </button>
+                  </div>
+                `
+                : ''
+            }
+
+            <!-- Metadane wiadomości -->
+            <div class="px-5 sm:px-6 py-4 border-b border-slate-200/70 dark:border-slate-800/80 bg-white/70 dark:bg-slate-900/50 space-y-3">
+              <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-snug">
+                ${escapeHtml(detail.subject)}
+              </h3>
+              <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-xl ${avatarColor} text-white font-bold text-xs flex items-center justify-center shrink-0">
+                  ${escapeHtml(initials)}
+                </div>
+                <div class="text-xs space-y-0.5 min-w-0 flex-1">
+                  <div class="flex flex-wrap items-center gap-x-2">
+                    <span class="font-semibold text-slate-900 dark:text-white">${escapeHtml(detail.fromName)}</span>
+                    <span class="font-mono text-slate-500 dark:text-slate-400">&lt;${escapeHtml(detail.fromAddress)}&gt;</span>
+                  </div>
+                  <div class="text-slate-500 dark:text-slate-400">
+                    Do: <span class="font-mono text-slate-700 dark:text-slate-300">${escapeHtml(detail.toAddress)}</span>
+                  </div>
+                  <div class="text-slate-400">${escapeHtml(formatFullDate(detail.createdAt))}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Treść wiadomości: bezpieczny iframe HTML lub czysty tekst -->
+            <div class="flex-1 flex flex-col bg-white dark:bg-slate-900/30 min-h-[320px]">
+              ${
+                viewMode === 'html'
+                  ? `<iframe
+                      id="emailHtmlFrame"
+                      title="Podgląd wiadomości HTML"
+                      sandbox="allow-popups allow-popups-to-escape-sandbox"
+                      class="w-full flex-1 min-h-[360px] bg-white border-0"
+                    ></iframe>`
+                  : `<pre class="p-5 sm:p-6 text-sm font-sans whitespace-pre-wrap break-words text-slate-700 dark:text-slate-300 leading-relaxed overflow-y-auto flex-1">${escapeHtml(detail.text || 'Brak treści tekstowej.')}</pre>`
+              }
+            </div>
+          </div>
+        `;
+
+        // Bezpieczne wstrzyknięcie treści HTML do srcdoc po wyrenderowaniu iframe
+        if (viewMode === 'html') {
+          const iframe = document.getElementById('emailHtmlFrame');
+          if (iframe) {
+            const safeDoc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><base target="_blank"><style>body{margin:0;padding:16px;font-family:Inter,system-ui,-apple-system,sans-serif;color:#0f172a;background:#ffffff;word-wrap:break-word;}img{max-width:100%;height:auto;}</style></head><body>${detail.html}</body></html>`;
+            iframe.srcdoc = safeDoc;
+          }
+        }
+      }
+
+      /**
+       * Eksport wybranej wiadomości do standardowego pliku .eml.
+       */
+      function downloadCurrentEml() {
+        const msg = state.messages.find((m) => m.id === state.selectedMessageId);
+        if (!msg) return;
+        const detail = state.messageDetailsCache[msg.id] || msg;
+
+        const eml = [
+          `From: "${detail.fromName}" <${detail.fromAddress}>`,
+          `To: <${detail.toAddress}>`,
+          `Subject: ${detail.subject}`,
+          `Date: ${new Date(detail.createdAt).toUTCString()}`,
+          `MIME-Version: 1.0`,
+          `Content-Type: text/plain; charset=UTF-8`,
+          ``,
+          detail.text || detail.intro || '',
+        ].join('\r\n');
+
+        const blob = new Blob([eml], { type: 'message/rfc822;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const safeName = (detail.subject || 'wiadomosc').replace(/[^a-zA-Z0-9_-]+/g, '_').slice(0, 32);
+        a.href = url;
+        a.download = `${safeName}.eml`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('Pobrano plik .eml', 'success');
+      }
+
+      // ==========================================
+      // 8. MODALE (WŁASNY ADRES, KOD QR) I LICZNIKI
+      // ==========================================
+
+      function openModal(el) {
+        el.classList.remove('hidden');
+        el.classList.add('flex');
+      }
+
+      function closeModal(el) {
+        el.classList.add('hidden');
+        el.classList.remove('flex');
+      }
+
+      function openChangeAddressModal() {
+        const current = state.session ? state.session.address : '';
+        const [userPart, domainPart] = current.split('@');
+        dom.customUsernameInput.value = userPart || generateRandomLogin();
+
+        const domainsToShow = state.domains.length ? state.domains : DEMO_DOMAINS;
+        dom.domainSelect.innerHTML = domainsToShow
+          .map((d) => `<option value="${escapeHtml(d)}">@${escapeHtml(d)}</option>`)
+          .join('');
+        if (domainPart && domainsToShow.includes(domainPart)) {
+          dom.domainSelect.value = domainPart;
+        }
+
+        openModal(dom.changeAddressModal);
+        setTimeout(() => dom.customUsernameInput.focus(), 50);
+      }
+
+      function openQrModal() {
+        const addr = state.session ? state.session.address : '';
+        if (!addr) return;
+        dom.qrContainer.innerHTML = '';
+        dom.qrEmailLabel.textContent = addr;
+
+        if (typeof QRCode !== 'undefined') {
+          try {
+            new QRCode(dom.qrContainer, {
+              text: `mailto:${addr}`,
+              width: 192,
+              height: 192,
+              colorDark: '#0f172a',
+              colorLight: '#ffffff',
+              correctLevel: QRCode.CorrectLevel.M,
+            });
+          } catch (e) {
+            dom.qrContainer.innerHTML = '<span class="text-xs text-slate-500">Nie udało się wygenerować kodu QR.</span>';
+          }
+        } else {
+          dom.qrContainer.innerHTML = '<span class="text-xs text-slate-500">Biblioteka QR chwilowo niedostępna.</span>';
+        }
+        openModal(dom.qrModal);
+      }
+
+      function updateRefreshProgress() {
+        const pct = Math.max(0, Math.min(100, (state.refreshCountdown / REFRESH_INTERVAL_SEC) * 100));
+        dom.refreshProgressBar.style.width = `${pct}%`;
+        updateStatusBadgeText();
+      }
+
+      function startIntervals() {
+        setInterval(() => {
+          // Licznik czasu sesji
+          state.sessionSeconds++;
+          dom.sessionTimer.textContent = formatDuration(state.sessionSeconds);
+
+          // Auto-odświeżanie w trybie Na Żywo co 7 sekund
+          if (state.mode === 'live' && !state.isBusy) {
+            state.refreshCountdown--;
+            if (state.refreshCountdown <= 0) {
+              refreshMessages(false);
+            } else {
+              updateRefreshProgress();
+            }
+          }
+        }, 1000);
+      }
+
+      // ==========================================
+      // 9. MOTYW JASNY / CIEMNY
+      // ==========================================
+
+      function initTheme() {
+        let saved = null;
+        try {
+          saved = localStorage.getItem(STORAGE_THEME_KEY);
+        } catch (e) {}
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      }
+
+      function toggleTheme() {
+        const isDark = document.documentElement.classList.toggle('dark');
+        try {
+          localStorage.setItem(STORAGE_THEME_KEY, isDark ? 'dark' : 'light');
+        } catch (e) {}
+      }
+
+      // ==========================================
+      // 10. OBSŁUGA ZDARZEŃ
+      // ==========================================
+
+      function bindEvents() {
+        dom.themeToggleBtn.addEventListener('click', toggleTheme);
+
+        // Przełączanie trybu Na Żywo / Demo
+        dom.modeLiveBtn.addEventListener('click', () => {
+          if (state.mode === 'live') return;
+          initLiveMode(false);
+        });
+        dom.modeDemoBtn.addEventListener('click', () => {
+          if (state.mode === 'demo') return;
+          initDemoMode();
+          showToast('Przełączono w tryb Demo (symulacja offline).', 'info');
+        });
+
+        // Kopiowanie adresu z wizualnym potwierdzeniem na przycisku
+        dom.copyEmailBtn.addEventListener('click', () => {
+          if (!state.session || !state.session.address) return;
+          copyToClipboard(state.session.address, 'Skopiowano adres e-mail!');
+          dom.copyBtnText.textContent = 'Skopiowano!';
+          dom.copyBtnIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />';
+          setTimeout(() => {
+            dom.copyBtnText.textContent = 'Kopiuj';
+            dom.copyBtnIcon.innerHTML =
+              '<path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />';
+          }, 1800);
+        });
+
+        dom.refreshBtn.addEventListener('click', () => refreshMessages(true));
+        dom.changeAddressBtn.addEventListener('click', openChangeAddressModal);
+        dom.qrCodeBtn.addEventListener('click', openQrModal);
+
+        dom.newRandomBtn.addEventListener('click', () => {
+          if (state.mode === 'live') {
+            clearLiveSession();
+            initLiveMode(true);
+          } else {
+            initDemoMode();
+            showToast('Wygenerowano nowy adres Demo.', 'success');
+          }
+        });
+
+        dom.deleteMailboxBtn.addEventListener('click', deleteMailboxAndRecreate);
+
+        dom.resetSessionTimerBtn.addEventListener('click', () => {
+          state.sessionSeconds = 0;
+          dom.sessionTimer.textContent = '00:00';
+          showToast('Zresetowano licznik sesji.', 'info');
+        });
+
+        dom.searchInput.addEventListener('input', (e) => {
+          state.searchQuery = e.target.value;
+          renderInbox();
+        });
+
+        dom.sendDemoEmailBtn.addEventListener('click', () => addDemoMessage());
+
+        // Delegacja kliknięć na liście wiadomości
+        dom.messageListPane.addEventListener('click', (e) => {
+          const delBtn = e.target.closest('[data-delete-id]');
+          if (delBtn) {
+            e.stopPropagation();
+            deleteSingleMessage(delBtn.getAttribute('data-delete-id'));
+            return;
+          }
+          const item = e.target.closest('.message-item');
+          if (item) {
+            selectMessage(item.getAttribute('data-msg-id'));
+          }
+        });
+
+        // Delegacja kliknięć w panelu podglądu wiadomości
+        dom.messageDetailPane.addEventListener('click', (e) => {
+          if (e.target.closest('#backToListBtn')) {
+            state.selectedMessageId = null;
+            renderInbox();
+            return;
+          }
+          const viewBtn = e.target.closest('[data-view-mode]');
+          if (viewBtn && !viewBtn.disabled) {
+            state.detailViewMode = viewBtn.getAttribute('data-view-mode');
+            renderMessageDetail();
+            return;
+          }
+          const otpBtn = e.target.closest('[data-copy-otp]');
+          if (otpBtn) {
+            const code = otpBtn.getAttribute('data-copy-otp');
+            copyToClipboard(code, `Skopiowano kod OTP: ${code}`);
+            return;
+          }
+          if (e.target.closest('#downloadEmlBtn')) {
+            downloadCurrentEml();
+            return;
+          }
+          if (e.target.closest('#deleteDetailMsgBtn')) {
+            if (state.selectedMessageId) deleteSingleMessage(state.selectedMessageId);
+          }
+        });
+
+        // Modal własnego adresu
+        dom.randomizeUsernameBtn.addEventListener('click', () => {
+          dom.customUsernameInput.value = generateRandomLogin();
+        });
+
+        dom.changeAddressForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const login = dom.customUsernameInput.value.trim().toLowerCase();
+          const domain = dom.domainSelect.value;
+
+          if (!/^[a-z0-9._-]{3,32}$/.test(login)) {
+            showToast('Login musi mieć 3–32 znaki (litery, cyfry, . _ -).', 'error');
+            return;
+          }
+
+          closeModal(dom.changeAddressModal);
+          if (state.mode === 'live') {
+            clearLiveSession();
+            await initLiveMode(true, login, domain);
+          } else {
+            initDemoMode(login, domain);
+            showToast(`Zmieniono adres Demo na ${login}@${domain}`, 'success');
+          }
+        });
+
+        // Zamykanie modali
+        document.querySelectorAll('[data-close-modal]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const modal = document.getElementById(btn.getAttribute('data-close-modal'));
+            if (modal) closeModal(modal);
+          });
+        });
+
+        [dom.changeAddressModal, dom.qrModal].forEach((modal) => {
+          modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal(modal);
+          });
+        });
+
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            closeModal(dom.changeAddressModal);
+            closeModal(dom.qrModal);
+          }
+        });
+
+        // Akordeon FAQ
+        document.querySelectorAll('.faq-trigger').forEach((trigger) => {
+          trigger.addEventListener('click', () => {
+            const content = trigger.nextElementSibling;
+            const chevron = trigger.querySelector('.faq-chevron');
+            const expanded = trigger.getAttribute('aria-expanded') === 'true';
+            trigger.setAttribute('aria-expanded', String(!expanded));
+            content.classList.toggle('hidden');
+            chevron.classList.toggle('rotate-180');
+          });
+        });
+      }
+
+      // ==========================================
+      // 11. START APLIKACJI
+      // ==========================================
+
+      function init() {
+        dom.currentYear.textContent = String(new Date().getFullYear());
+        initTheme();
+        bindEvents();
+        startIntervals();
+        initLiveMode(false);
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>
