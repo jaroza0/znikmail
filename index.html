@@ -1,50 +1,125 @@
 <!DOCTYPE html>
-<html lang="pl" class="scroll-smooth">
+<html lang="pl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ZnikMail — Tymczasowa Poczta E-mail Na Żywo</title>
+
+  <!-- Favicon w SVG (brak błędu 404 favicon.ico) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%234f46e5'/%3E%3Cstop offset='55%25' stop-color='%237c3aed'/%3E%3Cstop offset='100%25' stop-color='%2306b6d4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Cpath d='M14 22a4 4 0 0 1 4-4h28a4 4 0 0 1 4 4v20a4 4 0 0 1-4 4H24' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M14 22l18 13 18-13' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M10 36h9M8 44h11' stroke='%23fff' stroke-opacity='0.75' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E" />
 
   <!-- Czcionki Google: Inter oraz JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
 
-  <!-- Tailwind CSS przez CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-            mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
-          },
-          animation: {
-            'spin-once': 'spin 0.65s ease-in-out',
-            'fade-in': 'fadeIn 0.25s ease-out forwards',
-            'slide-up': 'slideUp 0.25s ease-out forwards',
-          },
-          keyframes: {
-            fadeIn: {
-              '0%': { opacity: '0' },
-              '100%': { opacity: '1' },
-            },
-            slideUp: {
-              '0%': { opacity: '0', transform: 'translateY(10px)' },
-              '100%': { opacity: '1', transform: 'translateY(0)' },
-            },
-          },
-        },
-      },
-    };
-  </script>
-
-  <!-- Biblioteka QRCode.js do generowania kodów QR -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
-
   <style>
+    /* ==================== ZMIENNE I MOTYWY ==================== */
+    :root {
+      --bg-page: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-subtle: #f1f5f9;
+      --bg-hover: #f8fafc;
+      --bg-header: rgba(255, 255, 255, 0.88);
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --text-main: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --accent-indigo: #4f46e5;
+      --accent-violet: #7c3aed;
+      --accent-cyan: #06b6d4;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #e11d48;
+      --accent-soft: #eef2ff;
+      --accent-soft-text: #4338ca;
+      --emerald-soft: #ecfdf5;
+      --emerald-soft-text: #047857;
+      --emerald-border: #a7f3d0;
+      --amber-soft: #fffbeb;
+      --amber-soft-text: #b45309;
+      --amber-border: #fde68a;
+      --rose-soft: #fff1f2;
+      --rose-soft-text: #be123c;
+      --rose-border: #fecdd3;
+      --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 8px 24px -6px rgba(15, 23, 42, 0.08);
+      --shadow-lg: 0 20px 45px -12px rgba(15, 23, 42, 0.22);
+      --radius-sm: 10px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 26px;
+      --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+    }
+
+    html.dark {
+      --bg-page: #020617;
+      --bg-card: #0f172a;
+      --bg-subtle: #1e293b;
+      --bg-hover: #162033;
+      --bg-header: rgba(15, 23, 42, 0.88);
+      --border: #1e293b;
+      --border-strong: #334155;
+      --text-main: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      --accent-soft: rgba(99, 102, 241, 0.16);
+      --accent-soft-text: #a5b4fc;
+      --emerald-soft: rgba(16, 185, 129, 0.14);
+      --emerald-soft-text: #6ee7b7;
+      --emerald-border: rgba(16, 185, 129, 0.32);
+      --amber-soft: rgba(245, 158, 11, 0.14);
+      --amber-soft-text: #fcd34d;
+      --amber-border: rgba(245, 158, 11, 0.32);
+      --rose-soft: rgba(225, 29, 72, 0.15);
+      --rose-soft-text: #fda4af;
+      --rose-border: rgba(225, 29, 72, 0.35);
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
+      --shadow-md: 0 10px 28px -6px rgba(0, 0, 0, 0.45);
+      --shadow-lg: 0 24px 55px -12px rgba(0, 0, 0, 0.65);
+    }
+
+    /* ==================== RESET I BAZA ==================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    button, input, select {
+      font-family: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    ::selection {
+      background: var(--accent-violet);
+      color: #ffffff;
+    }
+
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -53,29 +128,1241 @@
       background: transparent;
     }
     ::-webkit-scrollbar-thumb {
-      background-color: rgba(148, 163, 184, 0.45);
-      border-radius: 9999px;
+      background: rgba(148, 163, 184, 0.45);
+      border-radius: 999px;
     }
-    .dark ::-webkit-scrollbar-thumb {
-      background-color: rgba(71, 85, 105, 0.65);
-    }
-    #qrContainer img,
-    #qrContainer canvas {
+
+    .container {
+      width: 100%;
+      max-width: 1152px;
       margin: 0 auto;
-      border-radius: 0.75rem;
+      padding: 0 16px;
+    }
+
+    @media (min-width: 640px) {
+      .container { padding: 0 24px; }
+    }
+
+    .hidden { display: none !important; }
+
+    /* ==================== NAGŁÓWEK ==================== */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: var(--bg-header);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 64px;
+      padding: 8px 0;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent-indigo), var(--accent-violet) 55%, var(--accent-cyan));
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 18px -4px rgba(79, 70, 229, 0.4);
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .brand:hover .brand-icon {
+      transform: scale(1.05);
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-name {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    .brand-name span {
+      background: linear-gradient(90deg, var(--accent-indigo), var(--accent-cyan));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .brand-sub {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: auto;
+    }
+
+    .mode-switch {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px;
+      border-radius: 12px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+    }
+
+    .mode-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border: 0;
+      border-radius: 9px;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 600;
+      transition: all 0.18s ease;
+    }
+
+    .mode-btn.active-live {
+      background: var(--bg-card);
+      color: var(--emerald-soft-text);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .mode-btn.active-demo {
+      background: var(--bg-card);
+      color: var(--amber-soft-text);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .pulse-dot {
+      position: relative;
+      display: inline-flex;
+      width: 8px;
+      height: 8px;
+      flex-shrink: 0;
+    }
+
+    .pulse-dot::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      background: var(--accent-emerald);
+      opacity: 0.75;
+      animation: ping 1.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+
+    .pulse-dot::after {
+      content: '';
+      position: relative;
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent-emerald);
+    }
+
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+      color: var(--text-secondary);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.18s ease, color 0.18s ease;
+    }
+
+    .icon-btn:hover {
+      background: var(--border);
+      color: var(--text-main);
+    }
+
+    /* Pasek postępu auto-odświeżania */
+    .progress-track {
+      height: 3px;
+      width: 100%;
+      background: var(--border);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, var(--accent-indigo), var(--accent-violet), var(--accent-cyan));
+      transition: width 1s linear;
+    }
+
+    /* ==================== GŁÓWNA TREŚĆ ==================== */
+    main {
+      flex: 1;
+      padding: 24px 0 36px;
+    }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ==================== HERO: PANEL ADRESU ==================== */
+    .hero-card {
+      position: relative;
+      overflow: hidden;
+      padding: 24px 20px;
+    }
+
+    @media (min-width: 640px) {
+      .hero-card { padding: 34px 32px; }
+    }
+
+    .hero-glow-1, .hero-glow-2 {
+      position: absolute;
+      width: 280px;
+      height: 280px;
+      border-radius: 999px;
+      filter: blur(70px);
+      pointer-events: none;
+      opacity: 0.14;
+    }
+
+    .hero-glow-1 {
+      top: -110px;
+      right: -90px;
+      background: var(--accent-violet);
+    }
+
+    .hero-glow-2 {
+      bottom: -110px;
+      left: -90px;
+      background: var(--accent-cyan);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 760px;
+      margin: 0 auto;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border: 1px solid var(--emerald-border);
+      background: var(--emerald-soft);
+      color: var(--emerald-soft-text);
+    }
+
+    .status-pill.is-demo {
+      border-color: var(--amber-border);
+      background: var(--amber-soft);
+      color: var(--amber-soft-text);
+    }
+
+    .status-pill.is-error {
+      border-color: var(--rose-border);
+      background: var(--rose-soft);
+      color: var(--rose-soft-text);
+    }
+
+    .hero-title {
+      margin: 0;
+      font-size: 1.55rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+    }
+
+    @media (min-width: 640px) {
+      .hero-title { font-size: 1.85rem; }
+    }
+
+    .hero-subtitle {
+      margin: 6px 0 0;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Baner błędu sieciowego */
+    .error-banner {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      background: var(--rose-soft);
+      border: 1px solid var(--rose-border);
+      color: var(--rose-soft-text);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      text-align: left;
+      font-size: 0.84rem;
+    }
+
+    .error-banner-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* Pole adresu e-mail */
+    .email-bar {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 8px;
+      border-radius: 18px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+    }
+
+    @media (min-width: 640px) {
+      .email-bar {
+        flex-direction: row;
+        align-items: center;
+      }
+    }
+
+    .email-input-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      padding-left: 10px;
+    }
+
+    .email-input-icon {
+      color: var(--accent-violet);
+      flex-shrink: 0;
+    }
+
+    .email-input {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      padding: 10px 12px;
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-main);
+      outline: none;
+    }
+
+    @media (min-width: 640px) {
+      .email-input { font-size: 1.12rem; }
+    }
+
+    /* Przyciski */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      font-size: 0.86rem;
+      font-weight: 600;
+      transition: all 0.16s ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: var(--bg-subtle);
+      color: var(--text-main);
+      border-color: var(--border-strong);
+    }
+
+    .btn-primary {
+      border: 0;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, var(--accent-indigo), var(--accent-violet));
+      color: #ffffff;
+      box-shadow: 0 8px 20px -6px rgba(79, 70, 229, 0.45);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: linear-gradient(135deg, #4338ca, #6d28d9);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .btn-emerald {
+      border: 0;
+      background: var(--accent-emerald);
+      color: #ffffff;
+      box-shadow: 0 6px 16px -6px rgba(16, 185, 129, 0.45);
+    }
+
+    .btn-emerald:hover:not(:disabled) {
+      background: #059669;
+      color: #ffffff;
+    }
+
+    .btn-danger {
+      color: var(--accent-rose);
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background: var(--rose-soft);
+      border-color: var(--rose-border);
+      color: var(--rose-soft-text);
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      border-radius: 9px;
+    }
+
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .hero-meta {
+      width: 100%;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .session-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mono {
+      font-family: var(--font-mono);
+    }
+
+    .code-tag {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: var(--bg-subtle);
+      color: var(--accent-violet);
+    }
+
+    /* ==================== SKRZYNKA ODBIORCZA (SPLIT-VIEW) ==================== */
+    .inbox-card {
+      overflow: hidden;
+    }
+
+    .inbox-toolbar {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-hover);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .inbox-heading {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .inbox-heading h2 {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: var(--accent-soft);
+      color: var(--accent-soft-text);
+    }
+
+    .badge-muted {
+      background: var(--bg-subtle);
+      color: var(--text-muted);
+    }
+
+    .inbox-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      justify-content: flex-end;
+    }
+
+    .search-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 280px;
+    }
+
+    .search-wrap svg {
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 8px 12px 8px 34px;
+      border-radius: 11px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-violet);
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+    }
+
+    .inbox-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      min-height: 520px;
+    }
+
+    @media (min-width: 1024px) {
+      .inbox-grid {
+        grid-template-columns: 5fr 7fr;
+      }
+    }
+
+    .msg-list-pane {
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      max-height: 640px;
+      overflow-y: auto;
+    }
+
+    @media (min-width: 1024px) {
+      .msg-list-pane {
+        border-bottom: 0;
+        border-right: 1px solid var(--border);
+      }
+    }
+
+    .msg-detail-pane {
+      display: none;
+      flex-direction: column;
+      background: var(--bg-hover);
+      min-height: 520px;
+    }
+
+    @media (min-width: 1024px) {
+      .msg-detail-pane {
+        display: flex;
+      }
+    }
+
+    .msg-list-pane.mobile-hidden {
+      display: none;
+    }
+
+    @media (min-width: 1024px) {
+      .msg-list-pane.mobile-hidden {
+        display: flex;
+      }
+    }
+
+    .msg-detail-pane.mobile-visible {
+      display: flex;
+    }
+
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      text-align: center;
+      gap: 12px;
+      color: var(--text-muted);
+    }
+
+    .empty-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: var(--bg-subtle);
+      color: var(--accent-violet);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .empty-state p {
+      margin: 0;
+      font-size: 0.85rem;
+      max-width: 300px;
+      line-height: 1.5;
+    }
+
+    .empty-state strong {
+      color: var(--text-main);
+      font-size: 0.92rem;
+    }
+
+    /* Element listy wiadomości */
+    .msg-item {
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .msg-item:hover {
+      background: var(--bg-hover);
+    }
+
+    .msg-item.selected {
+      background: var(--accent-soft);
+    }
+
+    .msg-item.selected::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: linear-gradient(180deg, var(--accent-indigo), var(--accent-cyan));
+    }
+
+    .avatar {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 0.78rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .unread-dot {
+      position: absolute;
+      top: -3px;
+      right: -3px;
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      background: var(--accent-cyan);
+      border: 2px solid var(--bg-card);
+    }
+
+    .msg-meta {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .msg-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .msg-sender {
+      font-size: 0.88rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .msg-sender.unread {
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .msg-time {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .msg-subject {
+      margin: 3px 0 0;
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .msg-subject.unread {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .msg-preview-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .msg-excerpt {
+      margin: 0;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .otp-chip {
+      padding: 1px 6px;
+      border-radius: 5px;
+      background: var(--emerald-soft);
+      color: var(--emerald-soft-text);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .msg-del-btn {
+      padding: 6px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text-muted);
+      align-self: center;
+      transition: all 0.15s ease;
+    }
+
+    .msg-del-btn:hover {
+      background: var(--rose-soft);
+      color: var(--accent-rose);
+    }
+
+    /* Podgląd wiadomości */
+    .detail-toolbar {
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-card);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .back-mobile-btn {
+      display: inline-flex;
+    }
+
+    @media (min-width: 1024px) {
+      .back-mobile-btn { display: none; }
+    }
+
+    .view-toggle {
+      display: inline-flex;
+      padding: 3px;
+      border-radius: 10px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+    }
+
+    .view-toggle button {
+      border: 0;
+      background: transparent;
+      color: var(--text-muted);
+      padding: 4px 10px;
+      border-radius: 7px;
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+
+    .view-toggle button.active {
+      background: var(--bg-card);
+      color: var(--accent-violet);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .otp-banner {
+      padding: 12px 18px;
+      background: linear-gradient(90deg, rgba(16, 185, 129, 0.13), rgba(6, 182, 212, 0.12));
+      border-bottom: 1px solid var(--emerald-border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .otp-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .otp-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: var(--accent-emerald);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .otp-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 700;
+      color: var(--emerald-soft-text);
+    }
+
+    .otp-code {
+      font-family: var(--font-mono);
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: var(--text-main);
+    }
+
+    .detail-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-card);
+    }
+
+    .detail-subject {
+      margin: 0 0 12px;
+      font-size: 1.08rem;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .detail-sender-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .detail-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-card);
+      min-height: 340px;
+    }
+
+    .email-iframe {
+      width: 100%;
+      flex: 1;
+      min-height: 380px;
+      border: 0;
+      background: #ffffff;
+    }
+
+    .email-text-body {
+      margin: 0;
+      padding: 20px;
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      line-height: 1.65;
+      color: var(--text-secondary);
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    /* ==================== KARTY KORZYŚCI (3 KARTY) ==================== */
+    .benefits-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    @media (min-width: 768px) {
+      .benefits-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    .benefit-card {
+      padding: 22px;
+      border-radius: var(--radius-lg);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .benefit-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+
+    .benefit-card h3 {
+      margin: 0 0 8px;
+      font-size: 0.98rem;
+      font-weight: 700;
+    }
+
+    .benefit-card p {
+      margin: 0;
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    /* ==================== FAQ (AKORDEON) ==================== */
+    .faq-card {
+      padding: 24px 20px;
+    }
+
+    @media (min-width: 640px) {
+      .faq-card { padding: 30px 32px; }
+    }
+
+    .faq-inner {
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    .faq-inner h2 {
+      margin: 0 0 18px;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+      padding: 14px 0;
+    }
+
+    .faq-item:last-child {
+      border-bottom: 0;
+    }
+
+    .faq-trigger {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      text-align: left;
+      font-size: 0.94rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .faq-trigger:hover {
+      color: var(--accent-violet);
+    }
+
+    .faq-chevron {
+      flex-shrink: 0;
+      color: var(--text-muted);
+      transition: transform 0.2s ease;
+    }
+
+    .faq-trigger[aria-expanded="true"] .faq-chevron {
+      transform: rotate(180deg);
+    }
+
+    .faq-content {
+      margin-top: 10px;
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* ==================== STOPKA ==================== */
+    .site-footer {
+      border-top: 1px solid var(--border);
+      background: var(--bg-card);
+      padding: 20px 0;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .footer-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    /* ==================== MODALE ==================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background: rgba(2, 6, 23, 0.62);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .modal-box {
+      width: 100%;
+      max-width: 440px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      padding: 24px;
+      animation: slideUp 0.22s ease-out;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .modal-header h3 {
+      margin: 0;
+      font-size: 1.08rem;
+      font-weight: 700;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 11px;
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      outline: none;
+    }
+
+    .form-control:focus {
+      border-color: var(--accent-violet);
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.16);
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 20px;
+    }
+
+    .qr-box {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      border-radius: 16px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      margin: 10px auto;
+    }
+
+    .qr-box img {
+      width: 192px;
+      height: 192px;
+      display: block;
+      border-radius: 8px;
+    }
+
+    .qr-email-pill {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--accent-soft-text);
+      background: var(--accent-soft);
+      padding: 8px 12px;
+      border-radius: 10px;
+      word-break: break-all;
+      margin: 12px 0 18px;
+    }
+
+    /* ==================== POWIADOMIENIA TOAST ==================== */
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      left: 20px;
+      z-index: 60;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    @media (max-width: 639px) {
+      .toast-container { align-items: center; }
+    }
+
+    .toast {
+      pointer-events: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: 14px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: #ffffff;
+      max-width: 380px;
+      box-shadow: var(--shadow-md);
+      animation: slideUp 0.22s ease-out;
+    }
+
+    .toast-info { background: #1e293b; }
+    .toast-success { background: #059669; }
+    .toast-warning { background: #d97706; }
+    .toast-error { background: #e11d48; }
+
+    /* ==================== ANIMACJE ==================== */
+    @keyframes ping {
+      75%, 100% { transform: scale(2.1); opacity: 0; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes spinOnce {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .spin-once {
+      animation: spinOnce 0.65s ease-in-out;
+    }
+    .spin-loop {
+      animation: spinOnce 0.9s linear infinite;
     }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 font-sans antialiased min-h-screen flex flex-col transition-colors duration-200 selection:bg-violet-600 selection:text-white">
+<body>
 
   <!-- ==================== NAGŁÓWEK ==================== -->
-  <header class="sticky top-0 z-30 bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 sm:py-0 sm:h-16 flex flex-wrap items-center justify-between gap-3">
-      <!-- Logo ZnikMail -->
-      <a href="#" class="flex items-center gap-2.5 group focus:outline-none">
-        <div class="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 via-violet-600 to-cyan-500 text-white shadow-lg shadow-indigo-500/25 group-hover:scale-105 transition-transform">
-          <!-- Oryginalne logo SVG: koperta z efektem znikania/błysku -->
-          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#" class="brand" aria-label="ZnikMail — strona główna">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h11A2.5 2.5 0 0 1 20 7.5v7A2.5 2.5 0 0 1 17.5 17H9" />
             <path d="M4 7.5l8 5.5 8-5.5" />
             <path d="M3 13h3" stroke-opacity="0.7" />
@@ -83,675 +1370,454 @@
             <path d="M18.5 2.5l.6 1.4 1.4.6-1.4.6-.6 1.4-.6-1.4-1.4-.6 1.4-.6.6-1.4z" fill="currentColor" stroke="none" />
           </svg>
         </div>
-        <div class="flex flex-col">
-          <span class="font-extrabold text-lg tracking-tight leading-none text-slate-900 dark:text-white">
-            Znik<span class="bg-gradient-to-r from-indigo-600 to-cyan-500 dark:from-indigo-400 dark:to-cyan-400 bg-clip-text text-transparent">Mail</span>
-          </span>
-          <span class="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:inline mt-0.5">
-            Jednorazowa poczta na żywo
-          </span>
+        <div class="brand-text">
+          <span class="brand-name">Znik<span>Mail</span></span>
+          <span class="brand-sub">Jednorazowa poczta na żywo</span>
         </div>
       </a>
 
-      <!-- Przełącznik trybu pracy (Na Żywo / Demo) + status + motyw -->
-      <div class="flex items-center gap-2 sm:gap-3 ml-auto">
-        <!-- Przełącznik Tryb Na Żywo / Tryb Demo -->
-        <div class="inline-flex items-center p-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80" role="group" aria-label="Tryb pracy skrzynki">
-          <button
-            id="modeLiveBtn"
-            type="button"
-            class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-          >
-            <span id="liveDotWrapper" class="relative flex h-2 w-2 shrink-0">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
+      <div class="header-actions">
+        <div class="mode-switch" role="group" aria-label="Tryb pracy skrzynki">
+          <button id="modeLiveBtn" type="button" class="mode-btn active-live">
+            <span class="pulse-dot"></span>
             <span>Na Żywo</span>
           </button>
-          <button
-            id="modeDemoBtn"
-            type="button"
-            class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-          >
+          <button id="modeDemoBtn" type="button" class="mode-btn">
             <span>Demo</span>
           </button>
         </div>
 
-        <!-- Przełącznik motywu jasny/ciemny -->
-        <button
-          id="themeToggleBtn"
-          type="button"
-          aria-label="Przełącz motyw jasny lub ciemny"
-          title="Przełącz motyw"
-          class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500"
-        >
-          <svg class="w-4 h-4 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <button id="themeToggleBtn" type="button" class="icon-btn" aria-label="Przełącz motyw jasny lub ciemny" title="Przełącz motyw">
+          <svg id="iconSun" class="hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
           </svg>
-          <svg class="w-4 h-4 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <svg id="iconMoon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
           </svg>
         </button>
       </div>
     </div>
 
-    <!-- Pasek postępu auto-odświeżania (7s) -->
-    <div class="h-0.5 w-full bg-slate-200/70 dark:bg-slate-800 overflow-hidden">
-      <div id="refreshProgressBar" class="h-full bg-gradient-to-r from-indigo-600 via-violet-500 to-cyan-400 transition-all duration-1000 ease-linear" style="width: 100%"></div>
+    <!-- Pasek postępu auto-odświeżania (co 7 sekund) -->
+    <div class="progress-track">
+      <div id="refreshProgressBar" class="progress-fill"></div>
     </div>
   </header>
 
   <!-- ==================== GŁÓWNA ZAWARTOŚĆ ==================== -->
-  <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8">
+  <main>
+    <div class="container stack">
 
-    <!-- ===== SEKCJA HERO: PANEL ZARZĄDZANIA ADRESEM ===== -->
-    <section class="relative overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm p-5 sm:p-8">
-      <!-- Dekoracyjne rozmycia w tle -->
-      <div class="pointer-events-none absolute -top-28 -right-24 w-72 h-72 rounded-full bg-violet-500/10 dark:bg-violet-500/15 blur-3xl"></div>
-      <div class="pointer-events-none absolute -bottom-28 -left-24 w-72 h-72 rounded-full bg-cyan-500/10 dark:bg-cyan-500/10 blur-3xl"></div>
+      <!-- ===== KARTA GŁÓWNA: ZARZĄDZANIE ADRESEM ===== -->
+      <section class="card hero-card">
+        <div class="hero-glow-1"></div>
+        <div class="hero-glow-2"></div>
 
-      <div class="relative z-10 max-w-3xl mx-auto text-center space-y-5">
-        <!-- Pigułka statusu trybu -->
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200/70 dark:border-emerald-800/60" id="statusBadge">
-          <span class="relative flex h-2 w-2">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-          </span>
-          <span id="statusBadgeText">Połączono z API na żywo • Auto-odświeżanie za <strong id="countdownLabel" class="font-mono">7</strong>s</span>
-        </div>
+        <div class="hero-content">
+          <div id="statusPill" class="status-pill">
+            <span class="pulse-dot"></span>
+            <span id="statusPillText">Łączenie z serwerem pocztowym...</span>
+          </div>
 
-        <div class="space-y-1.5">
-          <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-            Twój tymczasowy adres e-mail
-          </h1>
-          <p class="text-sm text-slate-500 dark:text-slate-400">
-            Odbieraj prawdziwe wiadomości i kody weryfikacyjne bez podawania prywatnej skrzynki. Adres zapisuje się automatycznie w Twojej przeglądarce.
-          </p>
-        </div>
+          <div>
+            <h1 class="hero-title">Twój tymczasowy adres e-mail</h1>
+            <p class="hero-subtitle">
+              Odbieraj prawdziwe wiadomości i kody weryfikacyjne bez podawania prywatnej skrzynki. Sesja zapisuje się automatycznie.
+            </p>
+          </div>
 
-        <!-- Pole z adresem e-mail i przyciskiem Kopiuj -->
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 p-2 rounded-2xl bg-slate-100/90 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 shadow-inner">
-          <div class="relative flex-1 flex items-center min-w-0">
-            <span class="pl-3 text-violet-600 dark:text-violet-400 shrink-0" aria-hidden="true">
-              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <!-- Baner błędu sieciowego (ukryty, gdy połączenie działa) -->
+          <div id="networkErrorBanner" class="error-banner hidden" role="alert">
+            <div>
+              <strong>Błąd połączenia z API:</strong>
+              <span id="networkErrorText"></span>
+            </div>
+            <div class="error-banner-actions">
+              <button id="retryLiveBtn" type="button" class="btn btn-sm">Spróbuj ponownie</button>
+              <button id="switchToDemoFromErrorBtn" type="button" class="btn btn-sm btn-emerald">Przełącz na tryb Demo</button>
+            </div>
+          </div>
+
+          <!-- Pole adresu + Kopiuj -->
+          <div class="email-bar">
+            <div class="email-input-wrap">
+              <svg class="email-input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
               </svg>
-            </span>
-            <input
-              id="emailInput"
-              type="text"
-              readonly
-              aria-label="Twój tymczasowy adres e-mail"
-              class="w-full bg-transparent px-3 py-2.5 font-mono text-base sm:text-lg font-semibold text-slate-900 dark:text-white focus:outline-none select-all truncate"
-              value="Łączenie z serwerem..."
-            />
+              <input id="emailInput" class="email-input" type="text" readonly value="Generowanie adresu..." aria-label="Twój tymczasowy adres e-mail" />
+            </div>
+            <button id="copyEmailBtn" type="button" class="btn btn-primary">
+              <svg id="copyBtnIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+              <span id="copyBtnText">Kopiuj</span>
+            </button>
           </div>
 
-          <button
-            id="copyEmailBtn"
-            type="button"
-            class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 active:scale-[0.99] text-white font-semibold text-sm shadow-md shadow-indigo-600/25 transition-all focus:outline-none focus:ring-2 focus:ring-violet-500 shrink-0"
-          >
-            <svg id="copyBtnIcon" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-            </svg>
-            <span id="copyBtnText">Kopiuj</span>
-          </button>
-        </div>
+          <!-- Przyciski akcji -->
+          <div class="action-row">
+            <button id="refreshBtn" type="button" class="btn">
+              <svg id="refreshIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-violet)">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span>Odśwież</span>
+            </button>
 
-        <!-- Rząd przycisków zarządzania -->
-        <div class="flex flex-wrap items-center justify-center gap-2">
-          <button
-            id="refreshBtn"
-            type="button"
-            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-700 dark:text-slate-200 transition-colors"
-          >
-            <svg id="refreshIcon" class="w-4 h-4 text-violet-600 dark:text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            <span>Odśwież</span>
-          </button>
+            <button id="changeAddressBtn" type="button" class="btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-cyan)">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              <span>Zmień / Własny adres</span>
+            </button>
 
-          <button
-            id="changeAddressBtn"
-            type="button"
-            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-700 dark:text-slate-200 transition-colors"
-          >
-            <svg class="w-4 h-4 text-cyan-600 dark:text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-            <span>Zmień / Własny adres</span>
-          </button>
+            <button id="newRandomBtn" type="button" class="btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-indigo)">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+              </svg>
+              <span>Nowy losowy</span>
+            </button>
 
-          <button
-            id="newRandomBtn"
-            type="button"
-            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-700 dark:text-slate-200 transition-colors"
-          >
-            <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-            </svg>
-            <span>Nowy losowy</span>
-          </button>
+            <button id="qrCodeBtn" type="button" class="btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+              </svg>
+              <span>Kod QR</span>
+            </button>
 
-          <button
-            id="qrCodeBtn"
-            type="button"
-            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-700 dark:text-slate-200 transition-colors"
-          >
-            <svg class="w-4 h-4 text-slate-600 dark:text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-            </svg>
-            <span>Kod QR</span>
-          </button>
+            <button id="deleteMailboxBtn" type="button" class="btn btn-danger">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              <span>Usuń</span>
+            </button>
+          </div>
 
-          <button
-            id="deleteMailboxBtn"
-            type="button"
-            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-slate-200 dark:border-slate-700 hover:border-rose-200 dark:hover:border-rose-800 text-sm font-medium text-rose-600 dark:text-rose-400 transition-colors"
-          >
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-            <span>Usuń</span>
-          </button>
-        </div>
-
-        <!-- Pasek czasu sesji i sugestii URL -->
-        <div class="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400">
-          <div class="flex items-center gap-2.5">
-            <span class="inline-flex items-center gap-1.5">
-              <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <!-- Pasek czasu sesji -->
+          <div class="hero-meta">
+            <div class="session-box">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              Czas sesji:
-              <strong id="sessionTimer" class="font-mono text-slate-800 dark:text-slate-200 text-sm">00:00</strong>
-            </span>
-            <button
-              id="resetSessionTimerBtn"
-              type="button"
-              class="px-2.5 py-1 rounded-lg bg-violet-50 hover:bg-violet-100 dark:bg-violet-950/60 dark:hover:bg-violet-900/60 text-violet-700 dark:text-violet-300 font-semibold transition-colors"
-            >
-              Resetuj licznik
-            </button>
-          </div>
-
-          <div class="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
-            <span>Wskazówka: użyj parametru</span>
-            <code class="font-mono text-[11px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-violet-600 dark:text-violet-400">?login=mojtest</code>
-            <span>aby zasugerować prefiks.</span>
+              <span>Czas sesji: <strong id="sessionTimer" class="mono">00:00</strong></span>
+              <button id="resetSessionTimerBtn" type="button" class="btn btn-sm">Resetuj licznik</button>
+            </div>
+            <div>
+              Wskazówka: użyj parametru <span class="code-tag">?login=mojtest</span> w adresie URL, aby ustawić własny login.
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- ===== SEKCJA SKRZYNKI ODBIORCZEJ (SPLIT-VIEW) ===== -->
-    <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden">
-      <!-- Pasek narzędzi skrzynki -->
-      <div class="p-4 sm:px-6 border-b border-slate-200/80 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-3 bg-slate-50/70 dark:bg-slate-900/60">
-        <div class="flex items-center gap-3">
-          <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <svg class="w-5 h-5 text-violet-600 dark:text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+      <!-- ===== SKRZYNKA ODBIORCZA (SPLIT-VIEW) ===== -->
+      <section class="card inbox-card">
+        <div class="inbox-toolbar">
+          <div class="inbox-heading">
+            <h2>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-violet)">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+              </svg>
+              Skrzynka odbiorcza
+            </h2>
+            <span id="unreadBadge" class="badge badge-muted">0 wiadomości</span>
+          </div>
+
+          <div class="inbox-controls">
+            <div class="search-wrap">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input id="searchInput" class="search-input" type="text" placeholder="Szukaj nadawcy, tematu..." />
+            </div>
+
+            <button id="sendDemoEmailBtn" type="button" class="btn btn-emerald hidden">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              <span>Wyślij testowy e-mail</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="inbox-grid">
+          <div id="messageListPane" class="msg-list-pane"></div>
+          <div id="messageDetailPane" class="msg-detail-pane"></div>
+        </div>
+      </section>
+
+      <!-- ===== SEKCJA KORZYŚCI (3 KARTY) ===== -->
+      <section class="benefits-grid">
+        <article class="benefit-card">
+          <div class="benefit-icon" style="background: var(--emerald-soft); color: var(--emerald-soft-text);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5.636 18.364a9 9 0 010-12.728m12.728 0a9 9 0 010 12.728m-9.9-2.829a5 5 0 010-7.07m7.072 0a5 5 0 010 7.07M13 12a1 1 0 11-2 0 1 1 0 012 0z" />
             </svg>
-            Skrzynka odbiorcza
-          </h2>
-          <span
-            id="unreadBadge"
-            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300"
-          >
-            0 wiadomości
-          </span>
-        </div>
+          </div>
+          <h3>Prawdziwe maile w czasie rzeczywistym</h3>
+          <p>ZnikMail działa przez dedykowane proxy Cloudflare i API Guerrilla Mail, więc odbierasz prawdziwe wiadomości ze sklepów, portali i aplikacji w kilka sekund.</p>
+        </article>
 
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-          <!-- Wyszukiwarka -->
-          <div class="relative flex-1 sm:w-64">
-            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        <article class="benefit-card">
+          <div class="benefit-icon" style="background: var(--accent-soft); color: var(--accent-soft-text);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
             </svg>
-            <input
-              id="searchInput"
-              type="text"
-              placeholder="Szukaj po nadawcy, temacie..."
-              class="w-full pl-9 pr-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
-            />
           </div>
+          <h3>Automatyczne kody OTP i eksport .eml</h3>
+          <p>System sam rozpoznaje jednorazowe kody weryfikacyjne (4–8 cyfr) i pozwala skopiować je jednym kliknięciem. Każdą wiadomość możesz też pobrać jako plik .eml.</p>
+        </article>
 
-          <!-- Przycisk symulacji (widoczny aktywnie w trybie Demo) -->
-          <button
-            id="sendDemoEmailBtn"
-            type="button"
-            class="hidden items-center justify-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white text-sm font-medium shadow-sm shadow-emerald-600/20 transition-all shrink-0"
-          >
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+        <article class="benefit-card">
+          <div class="benefit-icon" style="background: rgba(6, 182, 212, 0.14); color: var(--accent-cyan);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
-            <span>Wyślij testowy e-mail</span>
-          </button>
-        </div>
-      </div>
+          </div>
+          <h3>Izolowany podgląd i zero spamu</h3>
+          <p>Treści HTML otwierają się w bezpiecznym kontenerze sandbox bez wykonywania skryptów. Nie podajesz hasła ani danych osobowych, a prywatna skrzynka zostaje czysta.</p>
+        </article>
+      </section>
 
-      <!-- Dwukolumnowy układ Split-View -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 min-h-[500px]">
-        <!-- Lewa kolumna: Lista wiadomości -->
-        <div
-          id="messageListPane"
-          class="lg:col-span-5 border-b lg:border-b-0 lg:border-r border-slate-200/80 dark:border-slate-800 flex flex-col max-h-[600px] overflow-y-auto"
-        >
-          <!-- Generowane przez JS -->
-        </div>
+      <!-- ===== SEKCJA FAQ (AKORDEON) ===== -->
+      <section class="card faq-card">
+        <div class="faq-inner">
+          <h2>Najczęściej zadawane pytania</h2>
 
-        <!-- Prawa kolumna: Podgląd wiadomości -->
-        <div
-          id="messageDetailPane"
-          class="lg:col-span-7 hidden lg:flex flex-col bg-slate-50/40 dark:bg-slate-950/30 min-h-[500px]"
-        >
-          <!-- Generowane przez JS -->
-        </div>
-      </div>
-    </section>
-
-    <!-- ===== SEKCJA INFORMACYJNA: 4 KARTY KORZYŚCI ===== -->
-    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-      <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
-        <div class="w-11 h-11 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M5.636 18.364a9 9 0 010-12.728m12.728 0a9 9 0 010 12.728m-9.9-2.829a5 5 0 010-7.07m7.072 0a5 5 0 010 7.07M13 12a1 1 0 11-2 0 1 1 0 012 0z" />
-          </svg>
-        </div>
-        <h3 class="font-bold text-slate-900 dark:text-white text-sm sm:text-base">Prawdziwe API w czasie rzeczywistym</h3>
-        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-          ZnikMail łączy się bezpośrednio z serwerami Mail.tm, dzięki czemu odbierasz prawdziwe maile z Gmaila, sklepów i portali.
-        </p>
-      </div>
-
-      <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
-        <div class="w-11 h-11 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
-          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-        </div>
-        <h3 class="font-bold text-slate-900 dark:text-white text-sm sm:text-base">Zero rejestracji</h3>
-        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-          Twoja skrzynka powstaje automatycznie w ułamku sekundy. Nie wymagamy podawania imienia, hasła ani numeru telefonu.
-        </p>
-      </div>
-
-      <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
-        <div class="w-11 h-11 rounded-xl bg-violet-50 dark:bg-violet-950/60 text-violet-600 dark:text-violet-400 flex items-center justify-center">
-          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-          </svg>
-        </div>
-        <h3 class="font-bold text-slate-900 dark:text-white text-sm sm:text-base">Ochrona przed spamem</h3>
-        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-          Izolowany podgląd HTML w bezpiecznym kontenerze chroni Twoją prywatność i utrzymuje główną skrzynkę w czystości.
-        </p>
-      </div>
-
-      <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
-        <div class="w-11 h-11 rounded-xl bg-cyan-50 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400 flex items-center justify-center">
-          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-          </svg>
-        </div>
-        <h3 class="font-bold text-slate-900 dark:text-white text-sm sm:text-base">Automatyczne wykrywanie kodów OTP</h3>
-        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-          ZnikMail automatycznie rozpoznaje kody weryfikacyjne (4–8 cyfr) w treści wiadomości i pozwala skopiować je jednym kliknięciem.
-        </p>
-      </div>
-    </section>
-
-    <!-- ===== SEKCJA FAQ (AKORDEON) ===== -->
-    <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm p-6 sm:p-8">
-      <div class="max-w-3xl mx-auto">
-        <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-5">
-          Najczęściej zadawane pytania — ZnikMail
-        </h2>
-
-        <div class="divide-y divide-slate-200/80 dark:divide-slate-800">
-          <!-- FAQ 1 -->
-          <div class="py-3.5">
-            <button type="button" class="faq-trigger w-full flex items-center justify-between gap-4 text-left font-semibold text-sm sm:text-base text-slate-800 dark:text-slate-100 hover:text-violet-600 dark:hover:text-violet-400 transition-colors focus:outline-none" aria-expanded="true">
-              <span>Jak działa odbieranie prawdziwych maili w ZnikMail?</span>
-              <svg class="faq-chevron w-5 h-5 text-slate-400 shrink-0 transition-transform duration-200 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <div class="faq-item">
+            <button type="button" class="faq-trigger" aria-expanded="true">
+              <span>Jak działa tymczasowa poczta ZnikMail?</span>
+              <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-            <div class="faq-content mt-2.5 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-              W trybie <strong>Na Żywo</strong> aplikacja tworzy w Twoim imieniu prawdziwe konto pocztowe w publicznej infrastrukturze <strong>Mail.tm</strong> i uwierzytelnia je tokenem JWT. Każda wiadomość wysłana na wygenerowany adres (np. z Gmaila, sklepu internetowego lub portalu społecznościowego) pojawi się w skrzynce automatycznie w ciągu kilku sekund.
+            <div class="faq-content">
+              Po otwarciu strony ZnikMail automatycznie generuje aktywny adres e-mail przez API Guerrilla Mail i sprawdza nowe wiadomości co 7 sekund. Możesz od razu użyć tego adresu do rejestracji w serwisach, pobierania darmowych materiałów lub odbierania kodów jednorazowych.
             </div>
           </div>
 
-          <!-- FAQ 2 -->
-          <div class="py-3.5">
-            <button type="button" class="faq-trigger w-full flex items-center justify-between gap-4 text-left font-semibold text-sm sm:text-base text-slate-800 dark:text-slate-100 hover:text-violet-600 dark:hover:text-violet-400 transition-colors focus:outline-none" aria-expanded="false">
-              <span>Czy podgląd wiadomości HTML jest bezpieczny?</span>
-              <svg class="faq-chevron w-5 h-5 text-slate-400 shrink-0 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <div class="faq-item">
+            <button type="button" class="faq-trigger" aria-expanded="false">
+              <span>Czy mogę zmienić domenę po znaku @ i nadal odbierać maile?</span>
+              <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-            <div class="faq-content hidden mt-2.5 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-              Tak. Wszystkie wiadomości w formacie HTML są wyświetlane wewnątrz odizolowanego elementu <code class="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">&lt;iframe sandbox&gt;</code>, co blokuje wykonywanie skryptów JavaScript z treści wiadomości. Możesz też w każdej chwili przełączyć podgląd na czysty tekst.
+            <div class="faq-content hidden">
+              Tak. Wszystkie oficjalne domeny dostępne w oknie „Zmień / Własny adres” (np. <span class="code-tag">sharklasers.com</span>, <span class="code-tag">grr.la</span>, <span class="code-tag">spam4.me</span>) kierują pocztę na tę samą aktywną skrzynkę.
             </div>
           </div>
 
-          <!-- FAQ 3 -->
-          <div class="py-3.5">
-            <button type="button" class="faq-trigger w-full flex items-center justify-between gap-4 text-left font-semibold text-sm sm:text-base text-slate-800 dark:text-slate-100 hover:text-violet-600 dark:hover:text-violet-400 transition-colors focus:outline-none" aria-expanded="false">
-              <span>Jak długo przechowywana jest moja skrzynka i wiadomości?</span>
-              <svg class="faq-chevron w-5 h-5 text-slate-400 shrink-0 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <div class="faq-item">
+            <button type="button" class="faq-trigger" aria-expanded="false">
+              <span>Co się stanie po odświeżeniu karty w przeglądarce?</span>
+              <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-            <div class="faq-content hidden mt-2.5 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-              Dane Twojej aktywnej sesji są zapisywane lokalnie w pamięci przeglądarki (<code class="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">localStorage</code>), więc po odświeżeniu karty nadal masz dostęp do tej samej skrzynki. Wiadomości w Mail.tm są przechowywane tymczasowo (zazwyczaj do 7 dni), a kliknięcie przycisku <strong>„Usuń”</strong> natychmiast kasuje konto z serwera. Ważne maile możesz wcześniej pobrać jako plik <code class="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">.eml</code>.
+            <div class="faq-content hidden">
+              Twój aktualny adres, wybrana domena oraz token sesji są zapisywane w pamięci lokalnej przeglądarki (<span class="code-tag">localStorage</span>). Po odświeżeniu strony wracasz do tej samej skrzynki, dopóki nie klikniesz „Nowy losowy” lub „Usuń”.
             </div>
           </div>
 
-          <!-- FAQ 4 -->
-          <div class="py-3.5">
-            <button type="button" class="faq-trigger w-full flex items-center justify-between gap-4 text-left font-semibold text-sm sm:text-base text-slate-800 dark:text-slate-100 hover:text-violet-600 dark:hover:text-violet-400 transition-colors focus:outline-none" aria-expanded="false">
-              <span>Do czego służy Tryb Demo (Symulacja offline)?</span>
-              <svg class="faq-chevron w-5 h-5 text-slate-400 shrink-0 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <div class="faq-item">
+            <button type="button" class="faq-trigger" aria-expanded="false">
+              <span>Do czego służy Tryb Demo?</span>
+              <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-            <div class="faq-content hidden mt-2.5 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-              Tryb Demo pozwala błyskawicznie przetestować działanie skrzynki, wykrywanie kodów OTP i eksport <code class="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">.eml</code> bez wysyłania prawdziwych maili. Uruchamia się również automatycznie jako tryb awaryjny, jeśli nie masz dostępu do internetu lub serwer API chwilowo ograniczy liczbę zapytań.
+            <div class="faq-content hidden">
+              Tryb Demo działa całkowicie offline i pozwala przetestować wygląd skrzynki, automatyczne wykrywanie kodów OTP oraz pobieranie plików <span class="code-tag">.eml</span> bez konieczności wysyłania prawdziwych wiadomości.
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+    </div>
   </main>
 
   <!-- ==================== STOPKA ==================== -->
-  <footer class="mt-8 border-t border-slate-200/80 dark:border-slate-800/80 bg-white/60 dark:bg-slate-900/40">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400 text-center sm:text-left">
-      <p>
-        &copy; <span id="currentYear"></span> <strong>ZnikMail</strong> — Szybka i bezpieczna poczta jednorazowa.
-      </p>
-      <p>
-        Napędzane przez otwarte API <strong>Mail.tm</strong> z automatycznym trybem awaryjnym Demo.
-      </p>
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>&copy; <span id="currentYear"></span> <strong>ZnikMail</strong> — Szybka i bezpieczna poczta jednorazowa.</div>
+      <div>Połączenie na żywo przez Cloudflare Worker + Guerrilla Mail API.</div>
     </div>
   </footer>
 
   <!-- ==================== MODAL: ZMIEŃ / WŁASNY ADRES ==================== -->
-  <div
-    id="changeAddressModal"
-    class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="changeAddressTitle"
-  >
-    <div class="w-full max-w-md rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-6 space-y-5 animate-slide-up">
-      <div class="flex items-center justify-between">
-        <h3 id="changeAddressTitle" class="text-lg font-bold text-slate-900 dark:text-white">
-          Ustaw własny adres e-mail
-        </h3>
-        <button
-          type="button"
-          data-close-modal="changeAddressModal"
-          class="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-          aria-label="Zamknij okno"
-        >
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+  <div id="changeAddressModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="changeAddressTitle">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="changeAddressTitle">Zmień / Własny adres e-mail</h3>
+        <button type="button" class="icon-btn" data-close-modal="changeAddressModal" aria-label="Zamknij">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
 
-      <form id="changeAddressForm" class="space-y-4">
-        <div class="space-y-1.5">
-          <label for="customUsernameInput" class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-            Nazwa użytkownika (login)
-          </label>
-          <div class="flex gap-2">
-            <input
-              id="customUsernameInput"
-              type="text"
-              required
-              minlength="3"
-              maxlength="32"
-              pattern="[a-zA-Z0-9._-]+"
-              placeholder="np. jan.test2026"
-              class="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
-            />
-            <button
-              id="randomizeUsernameBtn"
-              type="button"
-              class="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium transition-colors shrink-0"
-            >
-              Losuj
-            </button>
+      <form id="changeAddressForm">
+        <div class="form-group">
+          <label for="customUsernameInput" class="form-label">Nazwa użytkownika (przed @)</label>
+          <div class="form-row">
+            <input id="customUsernameInput" class="form-control" type="text" required minlength="3" maxlength="32" pattern="[a-zA-Z0-9._-]+" placeholder="np. mojtest2026" />
+            <button id="randomizeUsernameBtn" type="button" class="btn">Losuj</button>
           </div>
-          <p class="text-[11px] text-slate-400">Dozwolone małe litery, cyfry oraz znaki . _ -</p>
         </div>
 
-        <div class="space-y-1.5">
-          <label for="domainSelect" class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-            Dostępna domena
-          </label>
-          <select
-            id="domainSelect"
-            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
-          >
-            <!-- Wypełniane dynamicznie z API Mail.tm lub domen Demo -->
-          </select>
+        <div class="form-group">
+          <label for="domainSelect" class="form-label">Domena</label>
+          <select id="domainSelect" class="form-control"></select>
         </div>
 
-        <div class="pt-2 flex items-center justify-end gap-2.5">
-          <button
-            type="button"
-            data-close-modal="changeAddressModal"
-            class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-sm font-medium text-slate-700 dark:text-slate-200 transition-colors"
-          >
-            Anuluj
-          </button>
-          <button
-            id="saveCustomAddressBtn"
-            type="submit"
-            class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white text-sm font-semibold shadow-md shadow-indigo-600/20 transition-all"
-          >
-            Utwórz skrzynkę
-          </button>
+        <div class="modal-actions">
+          <button type="button" class="btn" data-close-modal="changeAddressModal">Anuluj</button>
+          <button type="submit" class="btn btn-primary">Zapisz adres</button>
         </div>
       </form>
     </div>
   </div>
 
   <!-- ==================== MODAL: KOD QR ==================== -->
-  <div
-    id="qrModal"
-    class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="qrModalTitle"
-  >
-    <div class="w-full max-w-sm rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-6 text-center space-y-5 animate-slide-up">
-      <div class="flex items-center justify-between">
-        <h3 id="qrModalTitle" class="text-lg font-bold text-slate-900 dark:text-white">
-          Kod QR skrzynki ZnikMail
-        </h3>
-        <button
-          type="button"
-          data-close-modal="qrModal"
-          class="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-          aria-label="Zamknij okno"
-        >
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+  <div id="qrModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="qrModalTitle">
+    <div class="modal-box" style="max-width: 380px; text-align: center;">
+      <div class="modal-header">
+        <h3 id="qrModalTitle">Kod QR skrzynki</h3>
+        <button type="button" class="icon-btn" data-close-modal="qrModal" aria-label="Zamknij">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
 
-      <p class="text-xs text-slate-500 dark:text-slate-400">
-        Zeskanuj telefonem, aby szybko skopiować lub użyć adresu na urządzeniu mobilnym.
+      <p style="margin: 0 0 8px; font-size: 0.82rem; color: var(--text-muted);">
+        Zeskanuj telefonem, aby szybko przenieść adres e-mail na urządzenie mobilne.
       </p>
 
-      <div class="p-4 rounded-2xl bg-white border border-slate-200 inline-block shadow-inner">
-        <div id="qrContainer" class="w-48 h-48 flex items-center justify-center"></div>
+      <div class="qr-box">
+        <img id="qrImage" alt="Kod QR adresu e-mail" src="" />
       </div>
 
-      <div id="qrEmailLabel" class="font-mono text-xs font-semibold text-violet-600 dark:text-violet-400 break-all bg-violet-50 dark:bg-violet-950/50 py-2 px-3 rounded-xl"></div>
+      <div id="qrEmailLabel" class="qr-email-pill"></div>
 
-      <button
-        type="button"
-        data-close-modal="qrModal"
-        class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-violet-600 dark:hover:bg-violet-700 text-white text-sm font-semibold transition-colors"
-      >
-        Zamknij
-      </button>
+      <button type="button" class="btn btn-primary" style="width: 100%;" data-close-modal="qrModal">Zamknij</button>
     </div>
   </div>
 
   <!-- ==================== KONTENER POWIADOMIEŃ TOAST ==================== -->
-  <div id="toastContainer" class="fixed bottom-5 right-5 left-5 sm:left-auto z-50 flex flex-col items-center sm:items-end gap-2 pointer-events-none"></div>
+  <div id="toastContainer" class="toast-container"></div>
 
-  <!-- ==================== LOGIKA APLIKACJI I KLIENT API MAIL.TM ==================== -->
+  <!-- ==================== LOGIKA APLIKACJI (GUERRILLA CLIENT) ==================== -->
   <script>
     (function () {
       'use strict';
 
+      const PROXY_URL = 'https://znikmail-proxy.renovatychy.workers.dev';
+      const OFFICIAL_DOMAINS = [
+        'guerrillamailblock.com',
+        'sharklasers.com',
+        'grr.la',
+        'guerrillamail.com',
+        'guerrillamail.net',
+        'spam4.me',
+      ];
+      const DEMO_DOMAINS = ['znikmail.demo', 'szybkapoczta.demo', 'chwilowka.demo'];
+      const STORAGE_SESSION_KEY = 'znikmail_guerrilla_session_v1';
+      const STORAGE_THEME_KEY = 'znikmail_theme_v1';
+      const REFRESH_INTERVAL_SEC = 7;
+
       // ==========================================
-      // 1. KLIENT API MAIL.TM (https://api.mail.tm)
+      // 1. KLASA KLIENTA API GUERRILLA MAIL
       // ==========================================
-      class MailTmClient {
-        constructor(baseUrl = 'https://api.mail.tm') {
-          this.baseUrl = baseUrl;
-          this.token = null;
+      class GuerrillaClient {
+        constructor(proxyUrl) {
+          this.proxyUrl = proxyUrl.replace(/\/+$/, '');
         }
 
-        setToken(token) {
-          this.token = token;
-        }
-
-        /**
-         * Uniwersalna metoda zapytań HTTP z obsługą błędów 401, 422 i 429.
-         */
-        async request(endpoint, options = {}) {
-          const headers = {
-            Accept: 'application/ld+json',
-            ...(options.body ? { 'Content-Type': 'application/json' } : {}),
-            ...(this.token ? { Authorization: `Bearer ${this.token}` } : {}),
-            ...(options.headers || {}),
-          };
-
-          const response = await fetch(`${this.baseUrl}${endpoint}`, {
-            ...options,
-            headers,
+        async request(queryString) {
+          const response = await fetch(`${this.proxyUrl}/?${queryString}`, {
+            method: 'GET',
+            headers: { Accept: 'application/json' },
           });
-
-          if (response.status === 204) {
-            return null;
-          }
-
-          let data = null;
-          try {
-            data = await response.json();
-          } catch (e) {
-            data = null;
-          }
 
           if (!response.ok) {
-            const err = new Error(
-              (data && (data['hydra:description'] || data.detail || data.message)) ||
-                `Błąd API (${response.status})`
-            );
-            err.status = response.status;
-            err.data = data;
-            throw err;
+            throw new Error(`HTTP ${response.status} ${response.statusText || ''}`.trim());
           }
 
-          return data;
-        }
-
-        /** GET /domains — pobiera aktywne domeny */
-        async getDomains() {
-          const data = await this.request('/domains', { method: 'GET' });
-          const members = (data && data['hydra:member']) || [];
-          return members.filter((d) => d.isActive !== false).map((d) => d.domain);
-        }
-
-        /** POST /accounts — tworzy nowe konto pocztowe */
-        async createAccount(address, password) {
-          return this.request('/accounts', {
-            method: 'POST',
-            body: JSON.stringify({ address, password }),
-          });
-        }
-
-        /** POST /token — pobiera token JWT dla konta */
-        async getToken(address, password) {
-          const data = await this.request('/token', {
-            method: 'POST',
-            body: JSON.stringify({ address, password }),
-          });
-          if (data && data.token) {
-            this.token = data.token;
+          const data = await response.json();
+          if (data && data.error) {
+            throw new Error(String(data.error));
           }
           return data;
         }
 
-        /** GET /messages — pobiera listę wiadomości */
-        async getMessages() {
-          const data = await this.request('/messages?page=1', { method: 'GET' });
-          return (data && data['hydra:member']) || [];
+        /** 1. Pobiera nowy losowy adres e-mail i sid_token */
+        async getEmailAddress() {
+          return this.request('f=get_email_address&lang=en');
         }
 
-        /** GET /messages/{id} — pobiera pełną treść wiadomości */
-        async getMessageById(id) {
-          return this.request(`/messages/${encodeURIComponent(id)}`, { method: 'GET' });
+        /** 2. Ustawia własną nazwę użytkownika przed @ */
+        async setEmailUser(user, sidToken) {
+          const qs = `f=set_email_user&email_user=${encodeURIComponent(user)}&lang=en&sid_token=${encodeURIComponent(sidToken)}`;
+          return this.request(qs);
         }
 
-        /** DELETE /messages/{id} — usuwa pojedynczą wiadomość */
-        async deleteMessage(id) {
-          return this.request(`/messages/${encodeURIComponent(id)}`, { method: 'DELETE' });
+        /** 3. Sprawdza listę wiadomości w skrzynce */
+        async checkEmail(sidToken) {
+          const qs = `f=check_email&seq=0&sid_token=${encodeURIComponent(sidToken)}`;
+          return this.request(qs);
         }
 
-        /** DELETE /accounts/{id} — usuwa konto z serwera */
-        async deleteAccount(id) {
-          return this.request(`/accounts/${encodeURIComponent(id)}`, { method: 'DELETE' });
+        /** 4. Pobiera pełną treść wybranej wiadomości */
+        async fetchEmail(mailId, sidToken) {
+          const qs = `f=fetch_email&email_id=${encodeURIComponent(mailId)}&sid_token=${encodeURIComponent(sidToken)}`;
+          return this.request(qs);
+        }
+
+        /** 5. Usuwa pojedynczą wiadomość */
+        async deleteEmail(mailId, sidToken) {
+          const qs = `f=del_email&email_ids[]=${encodeURIComponent(mailId)}&sid_token=${encodeURIComponent(sidToken)}`;
+          return this.request(qs);
+        }
+
+        /** 6. Zapomina bieżący adres przed wygenerowaniem nowego */
+        async forgetMe(emailAddr, sidToken) {
+          const qs = `f=forget_me&email_addr=${encodeURIComponent(emailAddr)}&sid_token=${encodeURIComponent(sidToken)}`;
+          return this.request(qs);
         }
       }
 
-      // ==========================================
-      // 2. KONFIGURACJA I STAN APLIKACJI
-      // ==========================================
-      const STORAGE_SESSION_KEY = 'znikmail_live_session_v1';
-      const STORAGE_THEME_KEY = 'znikmail_theme_v1';
-      const REFRESH_INTERVAL_SEC = 7;
-      const DEMO_DOMAINS = ['znikmail.demo', 'szybkapoczta.demo', 'chwilowka.demo'];
+      const api = new GuerrillaClient(PROXY_URL);
 
-      const api = new MailTmClient();
-
+      // ==========================================
+      // 2. STAN APLIKACJI I REFERENCJE DOM
+      // ==========================================
       const state = {
         mode: 'live', // 'live' | 'demo'
-        domains: [],
-        session: null, // { address, password, token, accountId }
-        messages: [], // ujednolicona lista wiadomości
-        messageDetailsCache: {}, // cache pełnych treści wiadomości po id
+        session: null, // { email_addr, sid_token, domain, startedAt }
+        messages: [],
+        messageDetailsCache: {},
         selectedMessageId: null,
         detailViewMode: 'html', // 'html' | 'text'
         searchQuery: '',
         refreshCountdown: REFRESH_INTERVAL_SEC,
-        sessionSeconds: 0,
         isBusy: false,
-        rateLimitBackoffUntil: 0,
         demoCounter: 0,
+        activeToasts: new Set(),
       };
 
       const dom = {
         modeLiveBtn: document.getElementById('modeLiveBtn'),
         modeDemoBtn: document.getElementById('modeDemoBtn'),
-        liveDotWrapper: document.getElementById('liveDotWrapper'),
         themeToggleBtn: document.getElementById('themeToggleBtn'),
+        iconSun: document.getElementById('iconSun'),
+        iconMoon: document.getElementById('iconMoon'),
         refreshProgressBar: document.getElementById('refreshProgressBar'),
-        statusBadge: document.getElementById('statusBadge'),
-        statusBadgeText: document.getElementById('statusBadgeText'),
+        statusPill: document.getElementById('statusPill'),
+        statusPillText: document.getElementById('statusPillText'),
+        networkErrorBanner: document.getElementById('networkErrorBanner'),
+        networkErrorText: document.getElementById('networkErrorText'),
+        retryLiveBtn: document.getElementById('retryLiveBtn'),
+        switchToDemoFromErrorBtn: document.getElementById('switchToDemoFromErrorBtn'),
         emailInput: document.getElementById('emailInput'),
         copyEmailBtn: document.getElementById('copyEmailBtn'),
         copyBtnText: document.getElementById('copyBtnText'),
@@ -774,18 +1840,16 @@
         customUsernameInput: document.getElementById('customUsernameInput'),
         domainSelect: document.getElementById('domainSelect'),
         randomizeUsernameBtn: document.getElementById('randomizeUsernameBtn'),
-        saveCustomAddressBtn: document.getElementById('saveCustomAddressBtn'),
         qrModal: document.getElementById('qrModal'),
-        qrContainer: document.getElementById('qrContainer'),
+        qrImage: document.getElementById('qrImage'),
         qrEmailLabel: document.getElementById('qrEmailLabel'),
         toastContainer: document.getElementById('toastContainer'),
         currentYear: document.getElementById('currentYear'),
       };
 
       // ==========================================
-      // 3. NARZĘDZIA POMOCNICZE
+      // 3. FUNKCJE POMOCNICZE
       // ==========================================
-
       function escapeHtml(str) {
         return String(str ?? '')
           .replace(/&/g, '&amp;')
@@ -795,28 +1859,50 @@
           .replace(/'/g, '&#39;');
       }
 
-      /**
-       * Kopiowanie do schowka zgodne z iFrame (document.execCommand('copy')).
-       */
-      function copyToClipboard(text, successMsg = 'Skopiowano do schowka!') {
-        let copied = false;
+      function getDisplayEmail() {
+        if (!state.session || !state.session.email_addr) return '';
+        const localPart = state.session.email_addr.split('@')[0];
+        const domain = state.session.domain || state.session.email_addr.split('@')[1] || OFFICIAL_DOMAINS[0];
+        return `${localPart}@${domain}`;
+      }
+
+      function generateRandomLogin() {
+        const syllables = ['znik', 'iskr', 'chmur', 'blys', 'nov', 'sol', 'vel', 'mir', 'zen', 'lum'];
+        const p1 = syllables[Math.floor(Math.random() * syllables.length)];
+        const p2 = syllables[Math.floor(Math.random() * syllables.length)];
+        const num = Math.floor(100 + Math.random() * 8999);
+        return `${p1}${p2}${num}`;
+      }
+
+      function getUrlLoginParam() {
         try {
-          const textarea = document.createElement('textarea');
-          textarea.value = text;
-          textarea.setAttribute('readonly', '');
-          textarea.style.position = 'fixed';
-          textarea.style.left = '-9999px';
-          textarea.style.top = '0';
-          document.body.appendChild(textarea);
-          textarea.select();
-          textarea.setSelectionRange(0, 99999);
-          copied = document.execCommand('copy');
-          document.body.removeChild(textarea);
+          const params = new URLSearchParams(window.location.search);
+          const login = params.get('login');
+          if (login && /^[a-zA-Z0-9._-]{3,32}$/.test(login.trim())) {
+            return login.trim().toLowerCase();
+          }
+        } catch (e) {}
+        return '';
+      }
+
+      function copyToClipboard(text, successMsg = 'Skopiowano do schowka!') {
+        let ok = false;
+        try {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.setAttribute('readonly', '');
+          ta.style.position = 'fixed';
+          ta.style.left = '-9999px';
+          document.body.appendChild(ta);
+          ta.select();
+          ta.setSelectionRange(0, 99999);
+          ok = document.execCommand('copy');
+          document.body.removeChild(ta);
         } catch (e) {
-          copied = false;
+          ok = false;
         }
 
-        if (copied) {
+        if (ok) {
           showToast(successMsg, 'success');
           return true;
         }
@@ -833,128 +1919,71 @@
         return false;
       }
 
+      /** Powiadomienia toast bez nakładania się identycznych komunikatów */
       function showToast(message, type = 'info') {
-        const styles = {
-          success: 'bg-emerald-600 text-white shadow-emerald-600/25',
-          info: 'bg-slate-900 dark:bg-indigo-600 text-white shadow-slate-900/20',
-          warning: 'bg-amber-500 text-white shadow-amber-500/25',
-          error: 'bg-rose-600 text-white shadow-rose-600/25',
-        };
-        const icons = {
-          success: '<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />',
-          info: '<path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />',
-          warning: '<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />',
-          error: '<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />',
-        };
+        const key = `${type}:${message}`;
+        if (state.activeToasts.has(key)) return;
+        state.activeToasts.add(key);
 
         const toast = document.createElement('div');
-        toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-2xl text-sm font-medium shadow-lg animate-slide-up max-w-sm ${styles[type] || styles.info}`;
-        toast.innerHTML = `
-          <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            ${icons[type] || icons.info}
-          </svg>
-          <span>${escapeHtml(message)}</span>
-        `;
+        toast.className = `toast toast-${type}`;
+        toast.textContent = message;
         dom.toastContainer.appendChild(toast);
 
         setTimeout(() => {
           toast.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
           toast.style.opacity = '0';
           toast.style.transform = 'translateY(8px)';
-          setTimeout(() => toast.remove(), 260);
-        }, 3400);
-      }
-
-      function generateRandomLogin(prefix = '') {
-        const syllables = ['znik', 'blys', 'chmur', 'iskr', 'komet', 'nov', 'vel', 'mir', 'sol', 'zen', 'kors', 'lum'];
-        const cleanPrefix = prefix
-          .toLowerCase()
-          .replace(/[^a-z0-9._-]/g, '')
-          .slice(0, 16);
-
-        const randNum = Math.floor(100 + Math.random() * 8999);
-        if (cleanPrefix && cleanPrefix.length >= 3) {
-          return `${cleanPrefix}${randNum}`;
-        }
-        const part1 = syllables[Math.floor(Math.random() * syllables.length)];
-        const part2 = syllables[Math.floor(Math.random() * syllables.length)];
-        return `${part1}${part2}${randNum}`;
-      }
-
-      function generateRandomPassword() {
-        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#';
-        let pass = '';
-        for (let i = 0; i < 18; i++) {
-          pass += chars[Math.floor(Math.random() * chars.length)];
-        }
-        return pass;
-      }
-
-      function getUrlLoginSuggestion() {
-        try {
-          const params = new URLSearchParams(window.location.search);
-          const login = params.get('login');
-          if (login && /^[a-zA-Z0-9._-]{3,24}$/.test(login.trim())) {
-            return login.trim().toLowerCase();
-          }
-        } catch (e) {}
-        return '';
+          setTimeout(() => {
+            toast.remove();
+            state.activeToasts.delete(key);
+          }, 260);
+        }, 3200);
       }
 
       function formatDuration(sec) {
-        const m = Math.floor(sec / 60);
-        const s = sec % 60;
+        const safe = Math.max(0, Math.floor(sec));
+        const m = Math.floor(safe / 60);
+        const s = safe % 60;
         return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
       }
 
-      function formatShortTime(isoOrDate) {
-        const d = new Date(isoOrDate);
-        if (isNaN(d.getTime())) return '--:--';
-        return d.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+      function formatTimeFromTimestamp(ts, fallbackDate = '') {
+        const num = Number(ts);
+        if (!isNaN(num) && num > 0) {
+          const d = new Date(num > 1e12 ? num : num * 1000);
+          if (!isNaN(d.getTime())) {
+            return d.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+          }
+        }
+        return fallbackDate || '--:--';
       }
 
-      function formatFullDate(isoOrDate) {
-        const d = new Date(isoOrDate);
-        if (isNaN(d.getTime())) return '';
-        return d.toLocaleString('pl-PL', {
-          day: '2-digit',
-          month: 'long',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-        });
+      function stripHtmlTags(html = '') {
+        const div = document.createElement('div');
+        div.innerHTML = html;
+        return (div.textContent || div.innerText || '').trim();
       }
 
-      /**
-       * Inteligentny detektor kodów weryfikacyjnych OTP (4-8 cyfr).
-       * Najpierw szuka kodu w pobliżu słów kluczowych, a następnie samodzielnego ciągu cyfr.
-       */
+      /** Wykrywanie kodów weryfikacyjnych OTP (4–8 cyfr) */
       function extractOtpCode(subject = '', text = '') {
         const combined = `${subject}\n${text}`;
         if (!combined.trim()) return null;
 
-        // 1. Wzorce ze słowami kluczowymi (PL i EN)
-        const keywordRegex =
-          /(?:kod(?:em|u)?|weryfikacyjn\w*|otp|pin|token|code|verification|passcode|hasło\s+jednorazowe)[^0-9a-zA-Z]{0,20}(\d{3}\s\d{3}|\d{4,8})\b/i;
-        const kwMatch = combined.match(keywordRegex);
+        const kwRegex = /(?:kod(?:em|u)?|weryfikacyjn\w*|otp|pin|token|code|verification|passcode|hasło\s+jednorazowe)[^0-9a-zA-Z]{0,20}(\d{3}\s\d{3}|\d{4,8})\b/i;
+        const kwMatch = combined.match(kwRegex);
         if (kwMatch && kwMatch[1]) {
           return kwMatch[1].replace(/\s+/g, '');
         }
 
-        // 2. Wyraźny format XXX XXX lub samodzielny 6-cyfrowy kod
         const spacedSix = combined.match(/\b(\d{3}\s\d{3})\b/);
-        if (spacedSix) {
-          return spacedSix[1].replace(/\s+/g, '');
-        }
+        if (spacedSix) return spacedSix[1].replace(/\s+/g, '');
 
-        // 3. Samodzielny kod 4-8 cyfr (z wykluczeniem typowych lat 1990-2035)
-        const genericMatches = combined.match(/\b(\d{4,8})\b/g);
-        if (genericMatches) {
-          for (const candidate of genericMatches) {
-            const num = Number(candidate);
-            if (candidate.length === 4 && num >= 1990 && num <= 2035) {
-              continue;
-            }
+        const generic = combined.match(/\b(\d{4,8})\b/g);
+        if (generic) {
+          for (const candidate of generic) {
+            const n = Number(candidate);
+            if (candidate.length === 4 && n >= 1990 && n <= 2035) continue;
             return candidate;
           }
         }
@@ -962,15 +1991,7 @@
       }
 
       function getAvatarColor(seed = '') {
-        const palette = [
-          'bg-indigo-600',
-          'bg-violet-600',
-          'bg-cyan-600',
-          'bg-emerald-600',
-          'bg-blue-600',
-          'bg-fuchsia-600',
-          'bg-amber-600',
-        ];
+        const palette = ['#4f46e5', '#7c3aed', '#0891b2', '#059669', '#2563eb', '#c026d3', '#d97706'];
         let hash = 0;
         for (let i = 0; i < seed.length; i++) {
           hash = seed.charCodeAt(i) + ((hash << 5) - hash);
@@ -978,267 +1999,172 @@
         return palette[Math.abs(hash) % palette.length];
       }
 
-      function getInitials(name = '', email = '') {
-        const source = (name || email || '?').trim();
-        const parts = source.split(/[\s.@_-]+/).filter(Boolean);
-        if (parts.length >= 2) {
-          return (parts[0][0] + parts[1][0]).toUpperCase();
-        }
-        return source.slice(0, 2).toUpperCase();
+      function getInitials(str = '') {
+        const clean = str.replace(/<.*?>/g, '').trim();
+        const parts = clean.split(/[\s.@_-]+/).filter(Boolean);
+        if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+        return (clean.slice(0, 2) || '?').toUpperCase();
       }
 
       // ==========================================
-      // 4. ZARZĄDZANIE SESJĄ W LOCALSTORAGE
+      // 4. ZAPIS I ODCZYT SESJI (LOCALSTORAGE)
       // ==========================================
-
-      function saveLiveSession(session) {
+      function saveSession() {
+        if (state.mode !== 'live' || !state.session) return;
         try {
-          localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(session));
+          localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(state.session));
         } catch (e) {}
       }
 
-      function loadLiveSession() {
+      function loadSession() {
         try {
           const raw = localStorage.getItem(STORAGE_SESSION_KEY);
           if (!raw) return null;
           const parsed = JSON.parse(raw);
-          if (parsed && parsed.address && parsed.password && parsed.token && parsed.accountId) {
+          if (parsed && parsed.email_addr && parsed.sid_token) {
             return parsed;
           }
         } catch (e) {}
         return null;
       }
 
-      function clearLiveSession() {
+      function clearSession() {
         try {
           localStorage.removeItem(STORAGE_SESSION_KEY);
         } catch (e) {}
       }
 
       // ==========================================
-      // 5. TRYB NA ŻYWO (MAIL.TM) ORAZ TRYB DEMO
+      // 5. ZARZĄDZANIE TRYBEM NA ŻYWO I DEMO
       // ==========================================
+      function setNetworkError(errMsg) {
+        if (errMsg) {
+          dom.networkErrorText.textContent = errMsg;
+          dom.networkErrorBanner.classList.remove('hidden');
+          dom.statusPill.className = 'status-pill is-error';
+          dom.statusPillText.textContent = 'Błąd połączenia z API — sprawdź sieć lub użyj trybu Demo';
+        } else {
+          dom.networkErrorBanner.classList.add('hidden');
+          updateStatusUI();
+        }
+      }
 
-      function updateModeUI() {
+      function updateStatusUI() {
         const isLive = state.mode === 'live';
+        dom.modeLiveBtn.className = isLive ? 'mode-btn active-live' : 'mode-btn';
+        dom.modeDemoBtn.className = !isLive ? 'mode-btn active-demo' : 'mode-btn';
+        dom.sendDemoEmailBtn.classList.toggle('hidden', isLive);
 
         if (isLive) {
-          dom.modeLiveBtn.className =
-            'inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-300 shadow-sm transition-all';
-          dom.modeDemoBtn.className =
-            'inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-all';
-          dom.sendDemoEmailBtn.classList.add('hidden');
-          dom.sendDemoEmailBtn.classList.remove('inline-flex');
-          dom.statusBadge.className =
-            'inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200/70 dark:border-emerald-800/60';
+          dom.statusPill.className = 'status-pill';
+          dom.statusPillText.innerHTML = `Tryb Na Żywo (Guerrilla Mail) • Odświeżanie za <strong class="mono">${state.refreshCountdown}</strong>s`;
         } else {
-          dom.modeDemoBtn.className =
-            'inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-900 text-amber-700 dark:text-amber-300 shadow-sm transition-all';
-          dom.modeLiveBtn.className =
-            'inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-all';
-          dom.sendDemoEmailBtn.classList.remove('hidden');
-          dom.sendDemoEmailBtn.classList.add('inline-flex');
-          dom.statusBadge.className =
-            'inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200/70 dark:border-amber-800/60';
-        }
-
-        updateStatusBadgeText();
-      }
-
-      function updateStatusBadgeText() {
-        if (state.mode === 'live') {
-          dom.statusBadgeText.innerHTML = `Tryb Na Żywo (API Mail.tm) • Auto-odświeżanie za <strong class="font-mono">${state.refreshCountdown}</strong>s`;
-        } else {
-          dom.statusBadgeText.innerHTML = `Tryb Demo (Symulacja offline) • Kliknij „Wyślij testowy e-mail”`;
+          dom.statusPill.className = 'status-pill is-demo';
+          dom.statusPillText.textContent = 'Tryb Demo (Symulacja offline) • Kliknij „Wyślij testowy e-mail”';
         }
       }
 
-      /**
-       * Inicjuje tryb Na Żywo: wczytuje domeny, przywraca zapisaną sesję lub tworzy nowe konto.
-       */
-      async function initLiveMode(forceNew = false, customLogin = '', customDomain = '') {
-        state.mode = 'live';
-        updateModeUI();
-        setBusy(true, 'Łączenie z Mail.tm...');
-
-        try {
-          // 1. Pobierz aktualną listę domen (jeśli jeszcze brak)
-          if (state.domains.length === 0 || state.domains[0].endsWith('.demo')) {
-            const liveDomains = await api.getDomains();
-            if (!liveDomains.length) {
-              throw new Error('Brak aktywnych domen po stronie API.');
-            }
-            state.domains = liveDomains;
-          }
-
-          // 2. Sprawdź, czy możemy przywrócić zapisaną sesję
-          const saved = !forceNew && !customLogin ? loadLiveSession() : null;
-          if (saved) {
-            api.setToken(saved.token);
-            try {
-              const msgs = await api.getMessages();
-              state.session = saved;
-              dom.emailInput.value = saved.address;
-              state.messages = normalizeLiveMessages(msgs);
-              state.messageDetailsCache = {};
-              state.selectedMessageId = null;
-              setBusy(false);
-              renderInbox();
-              showToast(`Przywrócono aktywną skrzynkę: ${saved.address}`, 'info');
-              return;
-            } catch (err) {
-              // Jeśli token wygasł (401), spróbuj odświeżyć token hasłem
-              if (err.status === 401) {
-                try {
-                  const tok = await api.getToken(saved.address, saved.password);
-                  saved.token = tok.token;
-                  saveLiveSession(saved);
-                  const msgs = await api.getMessages();
-                  state.session = saved;
-                  dom.emailInput.value = saved.address;
-                  state.messages = normalizeLiveMessages(msgs);
-                  state.selectedMessageId = null;
-                  setBusy(false);
-                  renderInbox();
-                  return;
-                } catch (reauthErr) {
-                  clearLiveSession();
-                }
-              } else if (err.status === 429) {
-                handleRateLimit();
-                state.session = saved;
-                dom.emailInput.value = saved.address;
-                setBusy(false);
-                renderInbox();
-                return;
-              } else {
-                clearLiveSession();
-              }
-            }
-          }
-
-          // 3. Utwórz nowe prawdziwe konto w Mail.tm
-          const domain = customDomain && state.domains.includes(customDomain)
-            ? customDomain
-            : state.domains[0];
-          const urlSuggestion = getUrlLoginSuggestion();
-          const login = customLogin || generateRandomLogin(urlSuggestion);
-          const address = `${login}@${domain}`.toLowerCase();
-          const password = generateRandomPassword();
-
-          api.setToken(null);
-          const account = await api.createAccount(address, password);
-          const tokenResp = await api.getToken(address, password);
-
-          state.session = {
-            address: account.address || address,
-            password,
-            token: tokenResp.token,
-            accountId: account.id || tokenResp.id,
-          };
-          saveLiveSession(state.session);
-
-          dom.emailInput.value = state.session.address;
-          state.messages = [];
-          state.messageDetailsCache = {};
-          state.selectedMessageId = null;
-          state.sessionSeconds = 0;
-          state.refreshCountdown = REFRESH_INTERVAL_SEC;
-
-          setBusy(false);
-          renderInbox();
-          showToast(`Utworzono prawdziwą skrzynkę: ${state.session.address}`, 'success');
-        } catch (err) {
-          setBusy(false);
-
-          if (err.status === 422) {
-            showToast('Ten login jest już zajęty. Wybierz inną nazwę użytkownika.', 'error');
-            return;
-          }
-          if (err.status === 429) {
-            handleRateLimit();
-            return;
-          }
-
-          // Automatyczny fallback do trybu Demo przy braku sieci / blokadzie CORS / awarii API
-          showToast('Nie udało się połączyć z API Mail.tm — przełączono w tryb Demo.', 'warning');
-          initDemoMode(customLogin);
-        }
-      }
-
-      /**
-       * Przełącza aplikację w tryb Demo (symulacja offline).
-       */
-      function initDemoMode(customLogin = '', customDomain = '') {
-        state.mode = 'demo';
-        state.domains = [...DEMO_DOMAINS];
-        const domain = customDomain && DEMO_DOMAINS.includes(customDomain)
-          ? customDomain
-          : DEMO_DOMAINS[0];
-        const login = customLogin || generateRandomLogin(getUrlLoginSuggestion());
-        const address = `${login}@${domain}`.toLowerCase();
-
-        state.session = {
-          address,
-          password: '',
-          token: 'demo-token',
-          accountId: 'demo-account',
-        };
-        dom.emailInput.value = address;
-        state.messages = [];
-        state.messageDetailsCache = {};
-        state.selectedMessageId = null;
-        state.sessionSeconds = 0;
-
-        updateModeUI();
-        // Dodaj jedną wiadomość powitalną w trybie Demo
-        addDemoMessage('welcome', true);
-        renderInbox();
-      }
-
-      function handleRateLimit() {
-        state.rateLimitBackoffUntil = Date.now() + 20000;
-        showToast('Zbyt wiele zapytań do API (limit 429). Odczekaj 20 sekund przed kolejnym odświeżeniem.', 'warning');
-      }
-
-      function setBusy(flag, placeholderText = '') {
+      function setBusy(flag, placeholder = '') {
         state.isBusy = flag;
-        if (flag && placeholderText) {
-          dom.emailInput.value = placeholderText;
-        }
+        if (flag && placeholder) dom.emailInput.value = placeholder;
         dom.newRandomBtn.disabled = flag;
         dom.deleteMailboxBtn.disabled = flag;
         dom.changeAddressBtn.disabled = flag;
       }
 
-      /**
-       * Normalizuje tablicę wiadomości z API Mail.tm do jednolitego formatu UI.
-       */
-      function normalizeLiveMessages(rawList) {
-        return rawList.map((m) => ({
-          id: m.id,
-          fromName: (m.from && m.from.name) || (m.from && m.from.address) || 'Nieznany nadawca',
-          fromAddress: (m.from && m.from.address) || '',
-          toAddress:
-            Array.isArray(m.to) && m.to[0] ? m.to[0].address : state.session ? state.session.address : '',
-          subject: m.subject || '(Brak tematu)',
-          intro: m.intro || '',
-          createdAt: m.createdAt || new Date().toISOString(),
-          seen: Boolean(m.seen),
-          isDemo: false,
+      function normalizeGuerrillaList(list = []) {
+        const toAddr = getDisplayEmail();
+        return list.map((m) => ({
+          id: String(m.mail_id),
+          from: m.mail_from || 'Nieznany nadawca',
+          to: toAddr,
+          subject: m.mail_subject || '(Brak tematu)',
+          excerpt: m.mail_excerpt || '',
+          timestamp: m.mail_timestamp || Math.floor(Date.now() / 1000),
+          dateLabel: m.mail_date || '',
+          read: String(m.mail_read) === '1',
         }));
       }
 
-      /**
-       * Pobiera listę wiadomości z Mail.tm (odświeżanie ręczne lub co 7s).
-       */
+      async function initLiveMode(forceNew = false) {
+        state.mode = 'live';
+        setNetworkError('');
+        updateStatusUI();
+        setBusy(true, 'Łączenie z serwerem...');
+
+        try {
+          const urlLogin = getUrlLoginParam();
+          let session = !forceNew ? loadSession() : null;
+
+          if (!session) {
+            const data = await api.getEmailAddress();
+            const addr = data.email_addr;
+            session = {
+              email_addr: addr,
+              sid_token: data.sid_token,
+              domain: addr.split('@')[1] || OFFICIAL_DOMAINS[0],
+              startedAt: Date.now(),
+            };
+          }
+
+          // Jeśli w URL jest ?login=mojtest i różni się od bieżącego, ustaw go
+          if (urlLogin && session.email_addr.split('@')[0].toLowerCase() !== urlLogin) {
+            const updated = await api.setEmailUser(urlLogin, session.sid_token);
+            session.email_addr = updated.email_addr || `${urlLogin}@${session.domain}`;
+            if (updated.sid_token) session.sid_token = updated.sid_token;
+          }
+
+          state.session = session;
+          saveSession();
+          dom.emailInput.value = getDisplayEmail();
+          state.selectedMessageId = null;
+          state.messageDetailsCache = {};
+          state.refreshCountdown = REFRESH_INTERVAL_SEC;
+
+          // Pobierz początkową listę wiadomości
+          const checkResp = await api.checkEmail(state.session.sid_token);
+          state.messages = normalizeGuerrillaList(checkResp.list || []);
+
+          setBusy(false);
+          updateStatusUI();
+          renderInbox();
+        } catch (err) {
+          setBusy(false);
+          const msg = err && err.message ? err.message : 'Nieznany błąd sieciowy';
+          setNetworkError(msg);
+          dom.emailInput.value = state.session ? getDisplayEmail() : 'Brak połączenia';
+          showToast(`Błąd API: ${msg}`, 'error');
+        }
+      }
+
+      function initDemoMode(customLogin = '', customDomain = '') {
+        state.mode = 'demo';
+        setNetworkError('');
+        const login = customLogin || getUrlLoginParam() || generateRandomLogin();
+        const domain = customDomain && DEMO_DOMAINS.includes(customDomain) ? customDomain : DEMO_DOMAINS[0];
+
+        state.session = {
+          email_addr: `${login}@${domain}`,
+          sid_token: 'demo-sid',
+          domain,
+          startedAt: Date.now(),
+        };
+        dom.emailInput.value = getDisplayEmail();
+        state.messages = [];
+        state.messageDetailsCache = {};
+        state.selectedMessageId = null;
+
+        updateStatusUI();
+        addDemoMessage('welcome', true);
+        renderInbox();
+      }
+
       async function refreshMessages(manual = false) {
         if (state.isBusy) return;
 
-        // Animacja ikony odświeżania
-        dom.refreshIcon.classList.remove('animate-spin-once');
+        dom.refreshIcon.classList.remove('spin-once');
         void dom.refreshIcon.offsetWidth;
-        dom.refreshIcon.classList.add('animate-spin-once');
+        dom.refreshIcon.classList.add('spin-once');
 
         state.refreshCountdown = REFRESH_INTERVAL_SEC;
         updateRefreshProgress();
@@ -1248,262 +2174,208 @@
           return;
         }
 
-        if (!state.session || !state.session.token) return;
-
-        if (Date.now() < state.rateLimitBackoffUntil) {
-          if (manual) showToast('Chwilowy limit zapytań API — spróbuj za moment.', 'warning');
+        if (!state.session || !state.session.sid_token) {
+          if (manual) initLiveMode(false);
           return;
         }
 
         try {
-          const prevCount = state.messages.length;
           const prevIds = new Set(state.messages.map((m) => m.id));
-          const raw = await api.getMessages();
-          const normalized = normalizeLiveMessages(raw);
+          const locallyRead = new Set(state.messages.filter((m) => m.read).map((m) => m.id));
 
-          // Zachowaj lokalny stan przeczytania dla otwartych wiadomości
-          const locallySeen = new Set(state.messages.filter((m) => m.seen).map((m) => m.id));
+          const data = await api.checkEmail(state.session.sid_token);
+          const normalized = normalizeGuerrillaList(data.list || []);
           normalized.forEach((m) => {
-            if (locallySeen.has(m.id)) m.seen = true;
+            if (locallyRead.has(m.id)) m.read = true;
           });
 
           state.messages = normalized;
+          setNetworkError('');
           renderInbox();
 
-          const newOnes = normalized.filter((m) => !prevIds.has(m.id));
-          if (newOnes.length > 0 && prevCount >= 0) {
-            showToast(`Odebrano nową wiadomość od: ${newOnes[0].fromName}`, 'success');
+          const newMsgs = normalized.filter((m) => !prevIds.has(m.id));
+          if (newMsgs.length > 0 && prevIds.size >= 0 && (manual || prevIds.size > 0 || newMsgs[0].id !== '1')) {
+            showToast(`Nowa wiadomość od: ${newMsgs[0].from}`, 'success');
           } else if (manual) {
             showToast('Skrzynka odświeżona — brak nowych wiadomości.', 'info');
           }
         } catch (err) {
-          if (err.status === 429) {
-            handleRateLimit();
-          } else if (err.status === 401 && state.session) {
-            try {
-              const tok = await api.getToken(state.session.address, state.session.password);
-              state.session.token = tok.token;
-              saveLiveSession(state.session);
-            } catch (e) {
-              if (manual) showToast('Sesja wygasła. Kliknij „Nowy losowy”.', 'error');
-            }
-          } else if (manual) {
-            showToast('Błąd połączenia z serwerem Mail.tm.', 'error');
-          }
+          const msg = err && err.message ? err.message : 'Błąd połączenia';
+          setNetworkError(msg);
+          if (manual) showToast(`Nie udało się odświeżyć: ${msg}`, 'error');
         }
       }
 
-      /**
-       * Pobiera pełną treść wybranej wiadomości (z cache lub z API Mail.tm).
-       */
       async function selectMessage(id) {
         const msg = state.messages.find((m) => m.id === id);
         if (!msg) return;
 
-        msg.seen = true;
+        msg.read = true;
         state.selectedMessageId = id;
         renderInbox();
 
         if (!state.messageDetailsCache[id] && state.mode === 'live') {
-          // Pokaż stan ładowania w prawym panelu
           renderDetailLoading();
           try {
-            const full = await api.getMessageById(id);
-            const htmlBody = Array.isArray(full.html) ? full.html.join('\n') : full.html || '';
-            const textBody = full.text || full.intro || '';
+            const full = await api.fetchEmail(id, state.session.sid_token);
+            const htmlBody = full.mail_body || '';
+            const textBody = stripHtmlTags(htmlBody) || msg.excerpt || '';
             state.messageDetailsCache[id] = {
               ...msg,
+              from: full.mail_from || msg.from,
+              subject: full.mail_subject || msg.subject,
+              dateLabel: full.mail_date || msg.dateLabel,
               html: htmlBody,
               text: textBody,
             };
           } catch (err) {
-            showToast('Nie udało się pobrać pełnej treści wiadomości.', 'error');
+            showToast(`Błąd pobierania treści: ${err.message}`, 'error');
             state.messageDetailsCache[id] = {
               ...msg,
               html: '',
-              text: msg.intro || 'Brak treści.',
+              text: msg.excerpt || 'Nie udało się załadować treści wiadomości.',
             };
           }
           renderMessageDetail();
         }
       }
 
-      /**
-       * Usuwa pojedynczą wiadomość (z serwera w trybie Live lub lokalnie w Demo).
-       */
       async function deleteSingleMessage(id) {
-        if (state.mode === 'live') {
+        if (state.mode === 'live' && state.session) {
           try {
-            await api.deleteMessage(id);
+            await api.deleteEmail(id, state.session.sid_token);
           } catch (err) {
-            if (err.status === 429) {
-              handleRateLimit();
-              return;
-            }
+            showToast(`Nie udało się usunąć z serwera: ${err.message}`, 'warning');
           }
         }
 
         state.messages = state.messages.filter((m) => m.id !== id);
         delete state.messageDetailsCache[id];
-        if (state.selectedMessageId === id) {
-          state.selectedMessageId = null;
-        }
+        if (state.selectedMessageId === id) state.selectedMessageId = null;
         renderInbox();
         showToast('Usunięto wiadomość.', 'info');
       }
 
-      /**
-       * Usuwa całą skrzynkę z serwera API i tworzy nową losową.
-       */
-      async function deleteMailboxAndRecreate() {
+      async function generateNewMailbox(forgetCurrent = true) {
         if (state.isBusy) return;
 
-        if (state.mode === 'live' && state.session && state.session.accountId) {
-          setBusy(true, 'Usuwanie konta...');
-          try {
-            await api.deleteAccount(state.session.accountId);
-          } catch (e) {
-            // Nawet jeśli konto już nie istnieje, przejdź do utworzenia nowego
+        if (state.mode === 'live') {
+          setBusy(true, 'Tworzenie nowej skrzynki...');
+          if (forgetCurrent && state.session && state.session.sid_token) {
+            try {
+              await api.forgetMe(state.session.email_addr, state.session.sid_token);
+            } catch (e) {}
           }
-          clearLiveSession();
+          clearSession();
           await initLiveMode(true);
+          if (state.session) {
+            showToast(`Nowy adres: ${getDisplayEmail()}`, 'success');
+          }
         } else {
           initDemoMode();
-          showToast('Usunięto skrzynkę Demo i wygenerowano nową.', 'success');
+          showToast('Wygenerowano nowy adres Demo.', 'success');
         }
       }
 
       // ==========================================
-      // 6. GENERATOR WIADOMOŚCI DLA TRYBU DEMO
+      // 6. TRYB DEMO: GENERATOR WIADOMOŚCI
       // ==========================================
-
       function addDemoMessage(forcedType = null, silent = false) {
-        const types = ['otp', 'register', 'invoice'];
+        const types = ['otp', 'register', 'newsletter'];
         const type = forcedType || types[state.demoCounter % types.length];
         state.demoCounter++;
 
-        const id = 'demo_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6);
-        const now = new Date().toISOString();
-        const toAddr = state.session ? state.session.address : 'demo@znikmail.demo';
+        const id = 'demo_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 5);
+        const nowSec = Math.floor(Date.now() / 1000);
+        const toAddr = getDisplayEmail();
 
-        let msgObj;
+        let item;
         if (type === 'welcome') {
-          msgObj = {
+          item = {
             id,
-            fromName: 'Zespół ZnikMail',
-            fromAddress: 'powitanie@znikmail.demo',
-            toAddress: toAddr,
+            from: 'powitanie@znikmail.demo',
+            to: toAddr,
             subject: 'Witaj w trybie Demo ZnikMail!',
-            intro: 'Przetestuj działanie skrzynki lub przełącz się na tryb Na Żywo u góry strony.',
-            createdAt: now,
-            seen: false,
-            isDemo: true,
-            text: `Witaj w ZnikMail (Tryb Demo)!\n\nTwój tymczasowy adres: ${toAddr}\nKliknij "Wyślij testowy e-mail", aby zasymulować odbiór wiadomości z kodem weryfikacyjnym OTP.`,
-            html: `<div style="font-family:Inter,sans-serif;color:#1e293b;padding:20px;line-height:1.6;">
-              <h2 style="margin:0 0 12px;color:#4f46e5;">Witaj w ZnikMail (Tryb Demo)</h2>
-              <p>Twój testowy adres: <strong style="font-family:monospace;">${escapeHtml(toAddr)}</strong></p>
-              <p>Użyj przycisku <strong>„Wyślij testowy e-mail”</strong>, aby sprawdzić automatyczne wykrywanie kodów OTP, przełączanie HTML/Tekst oraz eksport do pliku <code>.eml</code>.</p>
-              <p style="font-size:12px;color:#64748b;margin-top:20px;">Aby odbierać prawdziwe maile z internetu, wybierz <strong>Na Żywo</strong> w górnym pasku.</p>
-            </div>`,
+            excerpt: 'Kliknij „Wyślij testowy e-mail”, aby zasymulować odbiór wiadomości z kodem OTP.',
+            timestamp: nowSec,
+            dateLabel: formatTimeFromTimestamp(nowSec),
+            read: false,
+            text: `Witaj w trybie Demo ZnikMail!\nTwój adres testowy: ${toAddr}\nUżyj przycisku „Wyślij testowy e-mail”, aby przetestować wykrywanie kodów OTP i eksport .eml.`,
+            html: `<div style="font-family:Inter,sans-serif;padding:20px;color:#0f172a;line-height:1.6;"><h2 style="margin:0 0 10px;color:#4f46e5;">Witaj w ZnikMail (Demo)</h2><p>Twój testowy adres: <code>${escapeHtml(toAddr)}</code></p><p>Kliknij <strong>Wyślij testowy e-mail</strong>, aby zobaczyć wykrywanie kodów OTP oraz podgląd HTML/Tekst.</p></div>`,
           };
         } else if (type === 'otp') {
           const code = String(Math.floor(100000 + Math.random() * 900000));
-          msgObj = {
+          item = {
             id,
-            fromName: 'ChmuraID Bezpieczeństwo',
-            fromAddress: 'security@chmuraid.pl',
-            toAddress: toAddr,
+            from: 'security@chmuraid.pl',
+            to: toAddr,
             subject: `Twój kod weryfikacyjny: ${code}`,
-            intro: `Wprowadź kod ${code}, aby dokończyć logowanie do swojego konta.`,
-            createdAt: now,
-            seen: false,
-            isDemo: true,
-            text: `Cześć!\n\nTwój jednorazowy kod weryfikacyjny (OTP) to: ${code}\nKod wygaśnie za 10 minut.`,
-            html: `<div style="font-family:Inter,sans-serif;color:#0f172a;padding:24px;max-width:520px;">
-              <p style="margin:0 0 16px;">Otrzymaliśmy prośbę o potwierdzenie adresu <code>${escapeHtml(toAddr)}</code>.</p>
-              <div style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:14px;padding:20px;text-align:center;">
-                <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#64748b;margin-bottom:8px;">Jednorazowy kod weryfikacyjny</div>
-                <div style="font-family:monospace;font-size:32px;font-weight:700;letter-spacing:6px;color:#4f46e5;">${code}</div>
-              </div>
-              <p style="font-size:12px;color:#64748b;margin-top:16px;">Jeśli to nie Ty próbowałeś się zalogować, zignoruj tę wiadomość.</p>
-            </div>`,
+            excerpt: `Użyj kodu ${code}, aby potwierdzić logowanie do konta.`,
+            timestamp: nowSec,
+            dateLabel: formatTimeFromTimestamp(nowSec),
+            read: false,
+            text: `Cześć!\nTwój jednorazowy kod weryfikacyjny (OTP) to: ${code}\nKod jest ważny przez 10 minut.`,
+            html: `<div style="font-family:Inter,sans-serif;padding:22px;color:#0f172a;"><p>Potwierdź logowanie dla adresu <code>${escapeHtml(toAddr)}</code>:</p><div style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:12px;padding:18px;text-align:center;margin:14px 0;"><div style="font-size:11px;text-transform:uppercase;color:#64748b;margin-bottom:6px;">Kod weryfikacyjny</div><div style="font-family:monospace;font-size:30px;font-weight:700;letter-spacing:6px;color:#4f46e5;">${code}</div></div></div>`,
           };
         } else if (type === 'register') {
           const pin = String(Math.floor(1000 + Math.random() * 8999));
-          msgObj = {
+          item = {
             id,
-            fromName: 'Klub Programisty',
-            fromAddress: 'noreply@klubprogramisty.pl',
-            toAddress: toAddr,
+            from: 'noreply@klubprogramisty.pl',
+            to: toAddr,
             subject: 'Potwierdź rejestrację konta',
-            intro: `Twój kod PIN do aktywacji konta to ${pin}. Kliknij link, aby dokończyć.`,
-            createdAt: now,
-            seen: false,
-            isDemo: true,
-            text: `Dziękujemy za rejestrację w Klubie Programisty!\nTwój kod PIN aktywacyjny: ${pin}\nPozdrawiamy, Zespół.`,
-            html: `<div style="font-family:Inter,sans-serif;color:#1e293b;padding:24px;line-height:1.6;">
-              <h3 style="margin:0 0 10px;color:#0f172a;">Potwierdź swój adres e-mail</h3>
-              <p>Dziękujemy za dołączenie do naszej społeczności. Wpisz kod PIN <strong>${pin}</strong> na stronie rejestracji lub kliknij przycisk:</p>
-              <p style="margin:20px 0;"><a href="#aktywacja" style="display:inline-block;background:#4f46e5;color:#fff;text-decoration:none;padding:10px 20px;border-radius:10px;font-weight:600;">Aktywuj konto</a></p>
-            </div>`,
+            excerpt: `Twój kod PIN do aktywacji: ${pin}.`,
+            timestamp: nowSec,
+            dateLabel: formatTimeFromTimestamp(nowSec),
+            read: false,
+            text: `Dziękujemy za rejestrację!\nTwój kod PIN: ${pin}`,
+            html: `<div style="font-family:Inter,sans-serif;padding:22px;color:#0f172a;line-height:1.6;"><h3>Aktywuj swoje konto</h3><p>Wpisz kod PIN <strong>${pin}</strong> na stronie rejestracji, aby dokończyć zakładanie konta.</p></div>`,
           };
         } else {
-          msgObj = {
+          item = {
             id,
-            fromName: 'Sklep Cyfrowy',
-            fromAddress: 'zamowienia@sklepcyfrowy.pl',
-            toAddress: toAddr,
-            subject: 'Potwierdzenie pobrania darmowego e-booka',
-            intro: 'Twój poradnik PDF jest gotowy do pobrania. Dziękujemy za skorzystanie z oferty.',
-            createdAt: now,
-            seen: false,
-            isDemo: true,
-            text: `Dziękujemy!\nTwój bezpłatny e-book „Bezpieczeństwo w sieci 2026” został przypisany do adresu ${toAddr}.`,
-            html: `<div style="font-family:Inter,sans-serif;color:#1e293b;padding:24px;line-height:1.6;">
-              <h3 style="margin:0 0 10px;color:#059669;">Materiały są gotowe!</h3>
-              <p>Dziękujemy za zapis. Twój poradnik PDF został wygenerowany i jest gotowy do lektury.</p>
-              <table style="width:100%;border-collapse:collapse;margin-top:14px;font-size:14px;">
-                <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:8px 0;">E-book: Bezpieczeństwo w sieci</td><td style="text-align:right;font-weight:600;color:#059669;">0,00 zł</td></tr>
-              </table>
-            </div>`,
+            from: 'zamowienia@sklepcyfrowy.pl',
+            to: toAddr,
+            subject: 'Twój darmowy e-book jest gotowy',
+            excerpt: 'Dziękujemy za zapis! Materiały PDF zostały przypisane do Twojego adresu.',
+            timestamp: nowSec,
+            dateLabel: formatTimeFromTimestamp(nowSec),
+            read: false,
+            text: `Dziękujemy!\nTwój poradnik PDF został wysłany na adres ${toAddr}.`,
+            html: `<div style="font-family:Inter,sans-serif;padding:22px;color:#0f172a;line-height:1.6;"><h3 style="color:#059669;">Materiały są gotowe</h3><p>Dziękujemy za skorzystanie z oferty. Twój poradnik PDF czeka na pobranie.</p></div>`,
           };
         }
 
-        state.messages.unshift(msgObj);
-        state.messageDetailsCache[msgObj.id] = msgObj;
+        state.messages.unshift(item);
+        state.messageDetailsCache[item.id] = item;
         renderInbox();
-        if (!silent) {
-          showToast(`Odebrano testową wiadomość od: ${msgObj.fromName}`, 'success');
-        }
+        if (!silent) showToast(`Odebrano testowy e-mail od: ${item.from}`, 'success');
       }
 
       // ==========================================
       // 7. RENDEROWANIE SKRZYNKI I PODGLĄDU
       // ==========================================
-
       function getFilteredMessages() {
         const q = state.searchQuery.trim().toLowerCase();
         if (!q) return state.messages;
         return state.messages.filter((m) => {
           const cached = state.messageDetailsCache[m.id];
-          const textPool = `${m.fromName} ${m.fromAddress} ${m.subject} ${m.intro} ${cached ? cached.text : ''}`.toLowerCase();
-          return textPool.includes(q);
+          const pool = `${m.from} ${m.subject} ${m.excerpt} ${cached ? cached.text : ''}`.toLowerCase();
+          return pool.includes(q);
         });
       }
 
       function updateUnreadBadge() {
         const total = state.messages.length;
-        const unread = state.messages.filter((m) => !m.seen).length;
+        const unread = state.messages.filter((m) => !m.read).length;
         if (unread > 0) {
           const word = unread === 1 ? 'nowa' : unread < 5 ? 'nowe' : 'nowych';
           dom.unreadBadge.textContent = `${unread} ${word} (${total})`;
-          dom.unreadBadge.className =
-            'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300';
+          dom.unreadBadge.className = 'badge';
         } else {
-          const word = total === 1 ? 'wiadomość' : total >= 2 && total <= 4 ? 'wiadomości' : 'wiadomości';
+          const word = total === 1 ? 'wiadomość' : 'wiadomości';
           dom.unreadBadge.textContent = `${total} ${word}`;
-          dom.unreadBadge.className =
-            'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-200/80 text-slate-600 dark:bg-slate-800 dark:text-slate-400';
+          dom.unreadBadge.className = 'badge badge-muted';
         }
       }
 
@@ -1512,110 +2384,56 @@
         const filtered = getFilteredMessages();
 
         if (filtered.length === 0) {
-          const isSearching = state.searchQuery.trim().length > 0;
-          const emptyTitle = isSearching
+          const searching = state.searchQuery.trim().length > 0;
+          const title = searching
             ? 'Brak pasujących wiadomości'
             : state.mode === 'live'
-            ? 'Oczekiwanie na prawdziwe wiadomości...'
+            ? 'Oczekiwanie na wiadomości...'
             : 'Skrzynka Demo jest pusta';
-          const emptyDesc = isSearching
-            ? 'Zmień wyszukiwaną frazę, aby zobaczyć pozostałe wiadomości.'
+          const desc = searching
+            ? 'Zmień frazę w wyszukiwarce, aby zobaczyć pozostałe wiadomości.'
             : state.mode === 'live'
-            ? 'Wyślij e-mail na powyższy adres z dowolnej poczty — pojawi się tutaj automatycznie.'
-            : 'Kliknij zielony przycisk „Wyślij testowy e-mail”, aby przetestować odbieranie wiadomości.';
+            ? 'Wyślij e-mail na powyższy adres — pojawi się tutaj automatycznie w ciągu kilku sekund.'
+            : 'Kliknij przycisk „Wyślij testowy e-mail”, aby zasymulować nową wiadomość.';
 
           dom.messageListPane.innerHTML = `
-            <div class="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4">
-              <div class="relative flex items-center justify-center w-16 h-16">
-                ${
-                  !isSearching
-                    ? '<span class="animate-ping absolute inline-flex h-12 w-12 rounded-full bg-cyan-400/35"></span>'
-                    : ''
-                }
-                <div class="relative flex items-center justify-center w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 text-violet-600 dark:text-violet-400">
-                  <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                </div>
+            <div class="empty-state">
+              <div class="empty-icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
               </div>
-              <div class="space-y-1">
-                <p class="font-semibold text-slate-800 dark:text-slate-200 text-sm">${escapeHtml(emptyTitle)}</p>
-                <p class="text-xs text-slate-500 dark:text-slate-400 max-w-xs">${escapeHtml(emptyDesc)}</p>
-              </div>
+              <strong>${escapeHtml(title)}</strong>
+              <p>${escapeHtml(desc)}</p>
             </div>
           `;
         } else {
           dom.messageListPane.innerHTML = filtered
             .map((msg) => {
-              const isSelected = msg.id === state.selectedMessageId;
-              const initials = getInitials(msg.fromName, msg.fromAddress);
-              const avatarColor = getAvatarColor(msg.fromAddress || msg.fromName);
-              const quickOtp = extractOtpCode(msg.subject, msg.intro);
+              const selected = msg.id === state.selectedMessageId;
+              const initials = getInitials(msg.from);
+              const color = getAvatarColor(msg.from);
+              const quickOtp = extractOtpCode(msg.subject, msg.excerpt);
 
               return `
-                <div
-                  data-msg-id="${escapeHtml(msg.id)}"
-                  class="message-item group relative flex items-start gap-3 p-4 border-b border-slate-100 dark:border-slate-800/80 cursor-pointer transition-colors ${
-                    isSelected
-                      ? 'bg-violet-50/90 dark:bg-violet-950/35'
-                      : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
-                  }"
-                >
-                  ${
-                    isSelected
-                      ? '<span class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-indigo-600 to-cyan-500"></span>'
-                      : ''
-                  }
-
-                  <div class="relative shrink-0 w-10 h-10 rounded-xl ${avatarColor} text-white font-bold text-xs flex items-center justify-center shadow-sm">
+                <div class="msg-item ${selected ? 'selected' : ''}" data-msg-id="${escapeHtml(msg.id)}">
+                  <div class="avatar" style="background: ${color};">
                     ${escapeHtml(initials)}
-                    ${
-                      !msg.seen
-                        ? '<span class="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-cyan-500 ring-2 ring-white dark:ring-slate-900" title="Nieprzeczytana"></span>'
-                        : ''
-                    }
+                    ${!msg.read ? '<span class="unread-dot" title="Nieprzeczytana"></span>' : ''}
                   </div>
-
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-center justify-between gap-2">
-                      <span class="text-sm truncate ${
-                        !msg.seen
-                          ? 'font-bold text-slate-900 dark:text-white'
-                          : 'font-medium text-slate-700 dark:text-slate-300'
-                      }">
-                        ${escapeHtml(msg.fromName)}
-                      </span>
-                      <span class="text-[11px] font-mono text-slate-400 shrink-0">
-                        ${escapeHtml(formatShortTime(msg.createdAt))}
-                      </span>
+                  <div class="msg-meta">
+                    <div class="msg-top">
+                      <span class="msg-sender ${!msg.read ? 'unread' : ''}">${escapeHtml(msg.from)}</span>
+                      <span class="msg-time">${escapeHtml(formatTimeFromTimestamp(msg.timestamp, msg.dateLabel))}</span>
                     </div>
-                    <p class="text-xs sm:text-sm truncate mt-0.5 ${
-                      !msg.seen
-                        ? 'font-semibold text-slate-800 dark:text-slate-100'
-                        : 'text-slate-600 dark:text-slate-400'
-                    }">
-                      ${escapeHtml(msg.subject)}
-                    </p>
-                    <div class="flex items-center gap-2 mt-1">
-                      ${
-                        quickOtp
-                          ? `<span class="inline-flex items-center px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-mono text-[10px] font-bold shrink-0">OTP: ${escapeHtml(quickOtp)}</span>`
-                          : ''
-                      }
-                      <p class="text-xs text-slate-500 dark:text-slate-400 truncate">
-                        ${escapeHtml(msg.intro || 'Kliknij, aby odczytać treść...')}
-                      </p>
+                    <p class="msg-subject ${!msg.read ? 'unread' : ''}">${escapeHtml(msg.subject)}</p>
+                    <div class="msg-preview-row">
+                      ${quickOtp ? `<span class="otp-chip">OTP: ${escapeHtml(quickOtp)}</span>` : ''}
+                      <p class="msg-excerpt">${escapeHtml(msg.excerpt || 'Kliknij, aby otworzyć...')}</p>
                     </div>
                   </div>
-
-                  <button
-                    type="button"
-                    data-delete-id="${escapeHtml(msg.id)}"
-                    title="Usuń wiadomość"
-                    aria-label="Usuń wiadomość"
-                    class="opacity-100 sm:opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-all shrink-0 self-center"
-                  >
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <button type="button" class="msg-del-btn" data-delete-id="${escapeHtml(msg.id)}" title="Usuń wiadomość" aria-label="Usuń wiadomość">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
                   </button>
@@ -1629,16 +2447,14 @@
       }
 
       function renderDetailLoading() {
-        dom.messageListPane.classList.add('hidden', 'lg:flex');
-        dom.messageDetailPane.classList.remove('hidden');
-        dom.messageDetailPane.classList.add('flex');
+        dom.messageListPane.classList.add('mobile-hidden');
+        dom.messageDetailPane.classList.add('mobile-visible');
         dom.messageDetailPane.innerHTML = `
-          <div class="flex-1 flex flex-col items-center justify-center p-8 text-center text-slate-400 space-y-3">
-            <svg class="w-8 h-8 animate-spin text-violet-500" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+          <div class="empty-state">
+            <svg class="spin-loop" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--accent-violet)">
+              <path stroke-linecap="round" d="M12 3a9 9 0 1 0 9 9" />
             </svg>
-            <p class="text-sm">Pobieranie treści wiadomości...</p>
+            <p>Pobieranie pełnej treści wiadomości...</p>
           </div>
         `;
       }
@@ -1646,203 +2462,111 @@
       function renderMessageDetail() {
         const msg = state.messages.find((m) => m.id === state.selectedMessageId);
         if (!msg) {
-          dom.messageListPane.classList.remove('hidden');
-          dom.messageDetailPane.classList.add('hidden', 'lg:flex');
-          dom.messageDetailPane.classList.remove('flex');
-
+          dom.messageListPane.classList.remove('mobile-hidden');
+          dom.messageDetailPane.classList.remove('mobile-visible');
           dom.messageDetailPane.innerHTML = `
-            <div class="flex-1 flex flex-col items-center justify-center p-8 text-center text-slate-400 dark:text-slate-500 space-y-3">
-              <div class="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800/80 flex items-center justify-center">
-                <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" />
+            <div class="empty-state">
+              <div class="empty-icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5" />
                 </svg>
               </div>
-              <p class="text-sm font-medium text-slate-600 dark:text-slate-400">
-                Wybierz wiadomość z listy, aby wyświetlić jej pełną treść
-              </p>
+              <p>Wybierz wiadomość z listy, aby wyświetlić jej pełną treść.</p>
             </div>
           `;
           return;
         }
 
-        const detail = state.messageDetailsCache[msg.id] || { ...msg, html: '', text: msg.intro || '' };
+        const detail = state.messageDetailsCache[msg.id] || { ...msg, html: '', text: msg.excerpt || '' };
         const hasHtml = Boolean(detail.html && detail.html.trim().length > 0);
         const viewMode = hasHtml ? state.detailViewMode : 'text';
+        const detectedOtp = extractOtpCode(detail.subject, `${detail.text || ''}\n${stripHtmlTags(detail.html || '')}`);
 
-        // Wykryj kod OTP w temacie lub treści tekstowej/HTML
-        const strippedHtml = (detail.html || '').replace(/<[^>]+>/g, ' ');
-        const detectedOtp = extractOtpCode(detail.subject, `${detail.text || ''}\n${strippedHtml}`);
+        dom.messageListPane.classList.add('mobile-hidden');
+        dom.messageDetailPane.classList.add('mobile-visible');
 
-        dom.messageListPane.classList.add('hidden', 'lg:flex');
-        dom.messageDetailPane.classList.remove('hidden');
-        dom.messageDetailPane.classList.add('flex');
-
-        const initials = getInitials(detail.fromName, detail.fromAddress);
-        const avatarColor = getAvatarColor(detail.fromAddress || detail.fromName);
+        const initials = getInitials(detail.from);
+        const color = getAvatarColor(detail.from);
 
         dom.messageDetailPane.innerHTML = `
-          <div class="flex flex-col h-full animate-fade-in">
-            <!-- Pasek narzędzi wiadomości -->
-            <div class="px-4 sm:px-6 py-3 border-b border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-wrap items-center justify-between gap-2">
-              <button
-                type="button"
-                id="backToListBtn"
-                class="lg:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200"
-              >
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-                </svg>
-                Wróć
-              </button>
+          <div class="detail-toolbar">
+            <button type="button" id="backToListBtn" class="btn btn-sm back-mobile-btn">← Wróć</button>
 
-              <!-- Przełącznik widoku HTML / Tekst -->
-              <div class="inline-flex items-center p-0.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 text-xs">
-                <button
-                  type="button"
-                  data-view-mode="html"
-                  ${!hasHtml ? 'disabled' : ''}
-                  class="px-2.5 py-1 rounded-lg font-semibold transition-colors ${
-                    viewMode === 'html'
-                      ? 'bg-white dark:bg-slate-900 text-violet-600 dark:text-violet-400 shadow-sm'
-                      : 'text-slate-500 dark:text-slate-400 disabled:opacity-40'
-                  }"
-                >
-                  HTML
-                </button>
-                <button
-                  type="button"
-                  data-view-mode="text"
-                  class="px-2.5 py-1 rounded-lg font-semibold transition-colors ${
-                    viewMode === 'text'
-                      ? 'bg-white dark:bg-slate-900 text-violet-600 dark:text-violet-400 shadow-sm'
-                      : 'text-slate-500 dark:text-slate-400'
-                  }"
-                >
-                  Tekst
-                </button>
-              </div>
-
-              <div class="flex items-center gap-1.5 ml-auto">
-                <button
-                  type="button"
-                  id="downloadEmlBtn"
-                  class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-200 transition-colors"
-                >
-                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                  </svg>
-                  Pobierz .eml
-                </button>
-
-                <button
-                  type="button"
-                  id="deleteDetailMsgBtn"
-                  class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/50 dark:hover:bg-rose-900/60 text-xs font-medium text-rose-600 dark:text-rose-400 transition-colors"
-                >
-                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                  Usuń
-                </button>
-              </div>
+            <div class="view-toggle">
+              <button type="button" data-view-mode="html" class="${viewMode === 'html' ? 'active' : ''}" ${!hasHtml ? 'disabled' : ''}>HTML</button>
+              <button type="button" data-view-mode="text" class="${viewMode === 'text' ? 'active' : ''}">Tekst</button>
             </div>
 
-            <!-- Pasek automatycznie wykrytego kodu OTP -->
-            ${
-              detectedOtp
-                ? `
-                  <div class="px-5 py-3 bg-gradient-to-r from-emerald-500/15 via-cyan-500/15 to-indigo-500/15 border-b border-emerald-200/80 dark:border-emerald-800/60 flex flex-wrap items-center justify-between gap-3">
-                    <div class="flex items-center gap-2.5">
-                      <span class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                        </svg>
-                      </span>
-                      <div>
-                        <div class="text-[11px] font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">Wykryto kod weryfikacyjny</div>
-                        <div class="font-mono text-lg font-bold tracking-widest text-slate-900 dark:text-white">${escapeHtml(detectedOtp)}</div>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      data-copy-otp="${escapeHtml(detectedOtp)}"
-                      class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-sm transition-colors"
-                    >
-                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            <div style="display: flex; gap: 6px; margin-left: auto;">
+              <button type="button" id="downloadEmlBtn" class="btn btn-sm">Pobierz .eml</button>
+              <button type="button" id="deleteDetailMsgBtn" class="btn btn-sm btn-danger">Usuń</button>
+            </div>
+          </div>
+
+          ${
+            detectedOtp
+              ? `
+                <div class="otp-banner">
+                  <div class="otp-info">
+                    <div class="otp-icon">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                       </svg>
-                      Kopiuj kod
-                    </button>
+                    </div>
+                    <div>
+                      <div class="otp-label">Wykryto kod weryfikacyjny</div>
+                      <div class="otp-code">${escapeHtml(detectedOtp)}</div>
+                    </div>
                   </div>
-                `
-                : ''
-            }
+                  <button type="button" class="btn btn-sm btn-emerald" data-copy-otp="${escapeHtml(detectedOtp)}">Kopiuj kod</button>
+                </div>
+              `
+              : ''
+          }
 
-            <!-- Metadane wiadomości -->
-            <div class="px-5 sm:px-6 py-4 border-b border-slate-200/70 dark:border-slate-800/80 bg-white/70 dark:bg-slate-900/50 space-y-3">
-              <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-snug">
-                ${escapeHtml(detail.subject)}
-              </h3>
-              <div class="flex items-start gap-3">
-                <div class="w-10 h-10 rounded-xl ${avatarColor} text-white font-bold text-xs flex items-center justify-center shrink-0">
-                  ${escapeHtml(initials)}
-                </div>
-                <div class="text-xs space-y-0.5 min-w-0 flex-1">
-                  <div class="flex flex-wrap items-center gap-x-2">
-                    <span class="font-semibold text-slate-900 dark:text-white">${escapeHtml(detail.fromName)}</span>
-                    <span class="font-mono text-slate-500 dark:text-slate-400">&lt;${escapeHtml(detail.fromAddress)}&gt;</span>
-                  </div>
-                  <div class="text-slate-500 dark:text-slate-400">
-                    Do: <span class="font-mono text-slate-700 dark:text-slate-300">${escapeHtml(detail.toAddress)}</span>
-                  </div>
-                  <div class="text-slate-400">${escapeHtml(formatFullDate(detail.createdAt))}</div>
-                </div>
+          <div class="detail-header">
+            <h3 class="detail-subject">${escapeHtml(detail.subject)}</h3>
+            <div class="detail-sender-row">
+              <div class="avatar" style="background: ${color};">${escapeHtml(initials)}</div>
+              <div style="min-width: 0; flex: 1;">
+                <div style="color: var(--text-main); font-weight: 600; word-break: break-all;">${escapeHtml(detail.from)}</div>
+                <div>Do: <span class="mono">${escapeHtml(detail.to || getDisplayEmail())}</span></div>
+                <div>${escapeHtml(detail.dateLabel || formatTimeFromTimestamp(detail.timestamp))}</div>
               </div>
             </div>
+          </div>
 
-            <!-- Treść wiadomości: bezpieczny iframe HTML lub czysty tekst -->
-            <div class="flex-1 flex flex-col bg-white dark:bg-slate-900/30 min-h-[320px]">
-              ${
-                viewMode === 'html'
-                  ? `<iframe
-                      id="emailHtmlFrame"
-                      title="Podgląd wiadomości HTML"
-                      sandbox="allow-popups allow-popups-to-escape-sandbox"
-                      class="w-full flex-1 min-h-[360px] bg-white border-0"
-                    ></iframe>`
-                  : `<pre class="p-5 sm:p-6 text-sm font-sans whitespace-pre-wrap break-words text-slate-700 dark:text-slate-300 leading-relaxed overflow-y-auto flex-1">${escapeHtml(detail.text || 'Brak treści tekstowej.')}</pre>`
-              }
-            </div>
+          <div class="detail-body">
+            ${
+              viewMode === 'html'
+                ? `<iframe id="emailHtmlFrame" class="email-iframe" title="Podgląd wiadomości HTML" sandbox="allow-popups allow-popups-to-escape-sandbox"></iframe>`
+                : `<pre class="email-text-body">${escapeHtml(detail.text || 'Brak treści tekstowej.')}</pre>`
+            }
           </div>
         `;
 
-        // Bezpieczne wstrzyknięcie treści HTML do srcdoc po wyrenderowaniu iframe
         if (viewMode === 'html') {
           const iframe = document.getElementById('emailHtmlFrame');
           if (iframe) {
-            const safeDoc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><base target="_blank"><style>body{margin:0;padding:16px;font-family:Inter,system-ui,-apple-system,sans-serif;color:#0f172a;background:#ffffff;word-wrap:break-word;}img{max-width:100%;height:auto;}</style></head><body>${detail.html}</body></html>`;
-            iframe.srcdoc = safeDoc;
+            iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><base target="_blank"><style>body{margin:0;padding:18px;font-family:Inter,system-ui,-apple-system,sans-serif;color:#0f172a;background:#ffffff;line-height:1.6;word-wrap:break-word;}img{max-width:100%;height:auto;}</style></head><body>${detail.html}</body></html>`;
           }
         }
       }
 
-      /**
-       * Eksport wybranej wiadomości do standardowego pliku .eml.
-       */
       function downloadCurrentEml() {
         const msg = state.messages.find((m) => m.id === state.selectedMessageId);
         if (!msg) return;
         const detail = state.messageDetailsCache[msg.id] || msg;
 
         const eml = [
-          `From: "${detail.fromName}" <${detail.fromAddress}>`,
-          `To: <${detail.toAddress}>`,
+          `From: ${detail.from}`,
+          `To: ${detail.to || getDisplayEmail()}`,
           `Subject: ${detail.subject}`,
-          `Date: ${new Date(detail.createdAt).toUTCString()}`,
+          `Date: ${detail.dateLabel || new Date().toUTCString()}`,
           `MIME-Version: 1.0`,
           `Content-Type: text/plain; charset=UTF-8`,
           ``,
-          detail.text || detail.intro || '',
+          detail.text || detail.excerpt || '',
         ].join('\r\n');
 
         const blob = new Blob([eml], { type: 'message/rfc822;charset=utf-8' });
@@ -1859,75 +2583,49 @@
       }
 
       // ==========================================
-      // 8. MODALE (WŁASNY ADRES, KOD QR) I LICZNIKI
+      // 8. MODALE, KOD QR I LICZNIKI
       // ==========================================
-
-      function openModal(el) {
-        el.classList.remove('hidden');
-        el.classList.add('flex');
-      }
-
-      function closeModal(el) {
-        el.classList.add('hidden');
-        el.classList.remove('flex');
-      }
+      function openModal(el) { el.classList.remove('hidden'); }
+      function closeModal(el) { el.classList.add('hidden'); }
 
       function openChangeAddressModal() {
-        const current = state.session ? state.session.address : '';
+        const current = getDisplayEmail();
         const [userPart, domainPart] = current.split('@');
         dom.customUsernameInput.value = userPart || generateRandomLogin();
 
-        const domainsToShow = state.domains.length ? state.domains : DEMO_DOMAINS;
-        dom.domainSelect.innerHTML = domainsToShow
-          .map((d) => `<option value="${escapeHtml(d)}">@${escapeHtml(d)}</option>`)
-          .join('');
-        if (domainPart && domainsToShow.includes(domainPart)) {
+        const list = state.mode === 'live' ? OFFICIAL_DOMAINS : DEMO_DOMAINS;
+        dom.domainSelect.innerHTML = list.map((d) => `<option value="${escapeHtml(d)}">@${escapeHtml(d)}</option>`).join('');
+        if (domainPart && list.includes(domainPart)) {
           dom.domainSelect.value = domainPart;
         }
-
         openModal(dom.changeAddressModal);
-        setTimeout(() => dom.customUsernameInput.focus(), 50);
+        setTimeout(() => dom.customUsernameInput.focus(), 40);
       }
 
       function openQrModal() {
-        const addr = state.session ? state.session.address : '';
-        if (!addr) return;
-        dom.qrContainer.innerHTML = '';
-        dom.qrEmailLabel.textContent = addr;
-
-        if (typeof QRCode !== 'undefined') {
-          try {
-            new QRCode(dom.qrContainer, {
-              text: `mailto:${addr}`,
-              width: 192,
-              height: 192,
-              colorDark: '#0f172a',
-              colorLight: '#ffffff',
-              correctLevel: QRCode.CorrectLevel.M,
-            });
-          } catch (e) {
-            dom.qrContainer.innerHTML = '<span class="text-xs text-slate-500">Nie udało się wygenerować kodu QR.</span>';
-          }
-        } else {
-          dom.qrContainer.innerHTML = '<span class="text-xs text-slate-500">Biblioteka QR chwilowo niedostępna.</span>';
-        }
+        const email = getDisplayEmail();
+        if (!email) return;
+        dom.qrEmailLabel.textContent = email;
+        dom.qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=192x192&margin=4&data=${encodeURIComponent('mailto:' + email)}`;
         openModal(dom.qrModal);
       }
 
       function updateRefreshProgress() {
         const pct = Math.max(0, Math.min(100, (state.refreshCountdown / REFRESH_INTERVAL_SEC) * 100));
         dom.refreshProgressBar.style.width = `${pct}%`;
-        updateStatusBadgeText();
+        if (dom.networkErrorBanner.classList.contains('hidden')) {
+          updateStatusUI();
+        }
       }
 
       function startIntervals() {
         setInterval(() => {
-          // Licznik czasu sesji
-          state.sessionSeconds++;
-          dom.sessionTimer.textContent = formatDuration(state.sessionSeconds);
+          if (state.session && state.session.startedAt) {
+            const elapsed = Math.floor((Date.now() - state.session.startedAt) / 1000);
+            dom.sessionTimer.textContent = formatDuration(elapsed);
+          }
 
-          // Auto-odświeżanie w trybie Na Żywo co 7 sekund
-          if (state.mode === 'live' && !state.isBusy) {
+          if (state.mode === 'live' && !state.isBusy && state.session && state.session.sid_token) {
             state.refreshCountdown--;
             if (state.refreshCountdown <= 0) {
               refreshMessages(false);
@@ -1941,76 +2639,78 @@
       // ==========================================
       // 9. MOTYW JASNY / CIEMNY
       // ==========================================
+      function syncThemeIcons() {
+        const isDark = document.documentElement.classList.contains('dark');
+        dom.iconSun.classList.toggle('hidden', !isDark);
+        dom.iconMoon.classList.toggle('hidden', isDark);
+      }
 
       function initTheme() {
         let saved = null;
-        try {
-          saved = localStorage.getItem(STORAGE_THEME_KEY);
-        } catch (e) {}
+        try { saved = localStorage.getItem(STORAGE_THEME_KEY); } catch (e) {}
         const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
         if (saved === 'dark' || (!saved && prefersDark)) {
           document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
         }
+        syncThemeIcons();
       }
 
       function toggleTheme() {
         const isDark = document.documentElement.classList.toggle('dark');
-        try {
-          localStorage.setItem(STORAGE_THEME_KEY, isDark ? 'dark' : 'light');
-        } catch (e) {}
+        try { localStorage.setItem(STORAGE_THEME_KEY, isDark ? 'dark' : 'light'); } catch (e) {}
+        syncThemeIcons();
       }
 
       // ==========================================
-      // 10. OBSŁUGA ZDARZEŃ
+      // 10. ZDARZENIA I START
       // ==========================================
-
       function bindEvents() {
         dom.themeToggleBtn.addEventListener('click', toggleTheme);
 
-        // Przełączanie trybu Na Żywo / Demo
         dom.modeLiveBtn.addEventListener('click', () => {
-          if (state.mode === 'live') return;
-          initLiveMode(false);
-        });
-        dom.modeDemoBtn.addEventListener('click', () => {
-          if (state.mode === 'demo') return;
-          initDemoMode();
-          showToast('Przełączono w tryb Demo (symulacja offline).', 'info');
+          if (state.mode === 'live' && !dom.networkErrorBanner.classList.contains('hidden')) {
+            initLiveMode(false);
+            return;
+          }
+          if (state.mode !== 'live') initLiveMode(false);
         });
 
-        // Kopiowanie adresu z wizualnym potwierdzeniem na przycisku
+        dom.modeDemoBtn.addEventListener('click', () => {
+          if (state.mode !== 'demo') {
+            initDemoMode();
+            showToast('Przełączono w tryb Demo (offline).', 'info');
+          }
+        });
+
+        dom.retryLiveBtn.addEventListener('click', () => initLiveMode(false));
+        dom.switchToDemoFromErrorBtn.addEventListener('click', () => {
+          initDemoMode();
+          showToast('Przełączono w tryb Demo (offline).', 'info');
+        });
+
         dom.copyEmailBtn.addEventListener('click', () => {
-          if (!state.session || !state.session.address) return;
-          copyToClipboard(state.session.address, 'Skopiowano adres e-mail!');
+          const email = getDisplayEmail();
+          if (!email) return;
+          copyToClipboard(email, 'Skopiowano adres e-mail!');
           dom.copyBtnText.textContent = 'Skopiowano!';
           dom.copyBtnIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />';
           setTimeout(() => {
             dom.copyBtnText.textContent = 'Kopiuj';
-            dom.copyBtnIcon.innerHTML =
-              '<path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />';
+            dom.copyBtnIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />';
           }, 1800);
         });
 
         dom.refreshBtn.addEventListener('click', () => refreshMessages(true));
         dom.changeAddressBtn.addEventListener('click', openChangeAddressModal);
         dom.qrCodeBtn.addEventListener('click', openQrModal);
-
-        dom.newRandomBtn.addEventListener('click', () => {
-          if (state.mode === 'live') {
-            clearLiveSession();
-            initLiveMode(true);
-          } else {
-            initDemoMode();
-            showToast('Wygenerowano nowy adres Demo.', 'success');
-          }
-        });
-
-        dom.deleteMailboxBtn.addEventListener('click', deleteMailboxAndRecreate);
+        dom.newRandomBtn.addEventListener('click', () => generateNewMailbox(true));
+        dom.deleteMailboxBtn.addEventListener('click', () => generateNewMailbox(true));
 
         dom.resetSessionTimerBtn.addEventListener('click', () => {
-          state.sessionSeconds = 0;
+          if (state.session) {
+            state.session.startedAt = Date.now();
+            saveSession();
+          }
           dom.sessionTimer.textContent = '00:00';
           showToast('Zresetowano licznik sesji.', 'info');
         });
@@ -2022,7 +2722,6 @@
 
         dom.sendDemoEmailBtn.addEventListener('click', () => addDemoMessage());
 
-        // Delegacja kliknięć na liście wiadomości
         dom.messageListPane.addEventListener('click', (e) => {
           const delBtn = e.target.closest('[data-delete-id]');
           if (delBtn) {
@@ -2030,13 +2729,10 @@
             deleteSingleMessage(delBtn.getAttribute('data-delete-id'));
             return;
           }
-          const item = e.target.closest('.message-item');
-          if (item) {
-            selectMessage(item.getAttribute('data-msg-id'));
-          }
+          const item = e.target.closest('.msg-item');
+          if (item) selectMessage(item.getAttribute('data-msg-id'));
         });
 
-        // Delegacja kliknięć w panelu podglądu wiadomości
         dom.messageDetailPane.addEventListener('click', (e) => {
           if (e.target.closest('#backToListBtn')) {
             state.selectedMessageId = null;
@@ -2059,12 +2755,11 @@
             downloadCurrentEml();
             return;
           }
-          if (e.target.closest('#deleteDetailMsgBtn')) {
-            if (state.selectedMessageId) deleteSingleMessage(state.selectedMessageId);
+          if (e.target.closest('#deleteDetailMsgBtn') && state.selectedMessageId) {
+            deleteSingleMessage(state.selectedMessageId);
           }
         });
 
-        // Modal własnego adresu
         dom.randomizeUsernameBtn.addEventListener('click', () => {
           dom.customUsernameInput.value = generateRandomLogin();
         });
@@ -2080,16 +2775,33 @@
           }
 
           closeModal(dom.changeAddressModal);
+
           if (state.mode === 'live') {
-            clearLiveSession();
-            await initLiveMode(true, login, domain);
+            if (!state.session || !state.session.sid_token) {
+              await initLiveMode(true);
+              return;
+            }
+            setBusy(true, 'Aktualizowanie adresu...');
+            try {
+              const updated = await api.setEmailUser(login, state.session.sid_token);
+              state.session.email_addr = updated.email_addr || `${login}@${domain}`;
+              if (updated.sid_token) state.session.sid_token = updated.sid_token;
+              state.session.domain = domain;
+              saveSession();
+              dom.emailInput.value = getDisplayEmail();
+              setBusy(false);
+              showToast(`Ustawiono adres: ${getDisplayEmail()}`, 'success');
+              refreshMessages(false);
+            } catch (err) {
+              setBusy(false);
+              showToast(`Nie udało się zmienić adresu: ${err.message}`, 'error');
+            }
           } else {
             initDemoMode(login, domain);
             showToast(`Zmieniono adres Demo na ${login}@${domain}`, 'success');
           }
         });
 
-        // Zamykanie modali
         document.querySelectorAll('[data-close-modal]').forEach((btn) => {
           btn.addEventListener('click', () => {
             const modal = document.getElementById(btn.getAttribute('data-close-modal'));
@@ -2110,22 +2822,15 @@
           }
         });
 
-        // Akordeon FAQ
         document.querySelectorAll('.faq-trigger').forEach((trigger) => {
           trigger.addEventListener('click', () => {
             const content = trigger.nextElementSibling;
-            const chevron = trigger.querySelector('.faq-chevron');
             const expanded = trigger.getAttribute('aria-expanded') === 'true';
             trigger.setAttribute('aria-expanded', String(!expanded));
             content.classList.toggle('hidden');
-            chevron.classList.toggle('rotate-180');
           });
         });
       }
-
-      // ==========================================
-      // 11. START APLIKACJI
-      // ==========================================
 
       function init() {
         dom.currentYear.textContent = String(new Date().getFullYear());
