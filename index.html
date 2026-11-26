@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
@@ -1553,7 +1553,7 @@
             </svg>
           </div>
           <h3>Prawdziwe maile w czasie rzeczywistym</h3>
-          <p>ZnikMail działa przez dedykowane proxy Cloudflare i API Guerrilla Mail, więc odbierasz prawdziwe wiadomości ze sklepów, portali i aplikacji w kilka sekund.</p>
+          <p>ZnikMail działa przez dedykowane proxy Vercel i API Maildrop.cc GraphQL, więc odbierasz prawdziwe wiadomości ze sklepów, portali i aplikacji w kilka sekund.</p>
         </article>
 
         <article class="benefit-card">
@@ -1590,19 +1590,19 @@
               </svg>
             </button>
             <div class="faq-content">
-              Po otwarciu strony ZnikMail automatycznie generuje aktywny adres e-mail przez API Guerrilla Mail i sprawdza nowe wiadomości co 7 sekund. Możesz od razu użyć tego adresu do rejestracji w serwisach, pobierania darmowych materiałów lub odbierania kodów jednorazowych.
+              Po otwarciu strony ZnikMail automatycznie generuje aktywny adres <span class="code-tag">@maildrop.cc</span> i sprawdza nowe wiadomości co 6 sekund. Możesz od razu użyć tego adresu do rejestracji w serwisach, pobierania darmowych materiałów lub odbierania kodów jednorazowych.
             </div>
           </div>
 
           <div class="faq-item">
             <button type="button" class="faq-trigger" aria-expanded="false">
-              <span>Czy mogę zmienić domenę po znaku @ i nadal odbierać maile?</span>
+              <span>Czy mogę ustawić własny login przed @maildrop.cc?</span>
               <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
             </button>
             <div class="faq-content hidden">
-              Tak. Wszystkie oficjalne domeny dostępne w oknie „Zmień / Własny adres” (np. <span class="code-tag">sharklasers.com</span>, <span class="code-tag">grr.la</span>, <span class="code-tag">spam4.me</span>) kierują pocztę na tę samą aktywną skrzynkę.
+              Tak. Kliknij „Zmień / Własny adres” albo dopisz parametr <span class="code-tag">?login=twojanazwa</span> do adresu strony w przeglądarce. Skrzynka nie wymaga rejestracji — zaczyna odbierać pocztę natychmiast.
             </div>
           </div>
 
@@ -1614,7 +1614,7 @@
               </svg>
             </button>
             <div class="faq-content hidden">
-              Twój aktualny adres, wybrana domena oraz token sesji są zapisywane w pamięci lokalnej przeglądarki (<span class="code-tag">localStorage</span>). Po odświeżeniu strony wracasz do tej samej skrzynki, dopóki nie klikniesz „Nowy losowy” lub „Usuń”.
+              Twój aktualny login jest zapisywany w pamięci lokalnej przeglądarki (<span class="code-tag">localStorage</span>). Po odświeżeniu strony wracasz do tej samej skrzynki, dopóki nie klikniesz „Nowy losowy” lub „Usuń”.
             </div>
           </div>
 
@@ -1639,7 +1639,7 @@
   <footer class="site-footer">
     <div class="container footer-inner">
       <div>&copy; <span id="currentYear"></span> <strong>ZnikMail</strong> — Szybka i bezpieczna poczta jednorazowa.</div>
-      <div>Połączenie na żywo przez Cloudflare Worker + Guerrilla Mail API.</div>
+      <div>Połączenie na żywo przez Vercel Proxy + Maildrop.cc GraphQL API.</div>
     </div>
   </footer>
 
@@ -1706,94 +1706,98 @@
   <!-- ==================== KONTENER POWIADOMIEŃ TOAST ==================== -->
   <div id="toastContainer" class="toast-container"></div>
 
-  <!-- ==================== LOGIKA APLIKACJI (GUERRILLA CLIENT) ==================== -->
+  <!-- ==================== LOGIKA APLIKACJI (MAILDROP.CC GRAPHQL CLIENT) ==================== -->
   <script>
     (function () {
       'use strict';
 
-      const PROXY_URL = 'https://znikmail-proxy.renovatychy.workers.dev';
-      const OFFICIAL_DOMAINS = [
-        'guerrillamailblock.com',
-        'sharklasers.com',
-        'grr.la',
-        'guerrillamail.com',
-        'guerrillamail.net',
-        'spam4.me',
-      ];
+      const PROXY_URL = 'https://znikmail.vercel.app/api/maildrop';
+      const LIVE_DOMAIN = 'maildrop.cc';
       const DEMO_DOMAINS = ['znikmail.demo', 'szybkapoczta.demo', 'chwilowka.demo'];
-      const STORAGE_SESSION_KEY = 'znikmail_guerrilla_session_v1';
+      const STORAGE_SESSION_KEY = 'znikmail_maildrop_session_v1';
       const STORAGE_THEME_KEY = 'znikmail_theme_v1';
-      const REFRESH_INTERVAL_SEC = 7;
+      const REFRESH_INTERVAL_SEC = 6;
 
       // ==========================================
-      // 1. KLASA KLIENTA API GUERRILLA MAIL
+      // 1. KLASA KLIENTA API MAILDROP.CC (GRAPHQL)
       // ==========================================
-      class GuerrillaClient {
-        constructor(proxyUrl) {
-          this.proxyUrl = proxyUrl.replace(/\/+$/, '');
+      class MaildropClient {
+        constructor(endpoint) {
+          this.endpoint = endpoint;
         }
 
-        async request(queryString) {
-          const response = await fetch(`${this.proxyUrl}/?${queryString}`, {
-            method: 'GET',
-            headers: { Accept: 'application/json' },
+        async graphql(query, variables = {}) {
+          const response = await fetch(this.endpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
+            },
+            body: JSON.stringify({ query, variables }),
           });
 
           if (!response.ok) {
             throw new Error(`HTTP ${response.status} ${response.statusText || ''}`.trim());
           }
 
-          const data = await response.json();
-          if (data && data.error) {
-            throw new Error(String(data.error));
+          const payload = await response.json();
+          if (payload.errors && payload.errors.length > 0) {
+            throw new Error(payload.errors[0].message || 'Błąd zapytania GraphQL');
           }
-          return data;
+          if (payload.error) {
+            throw new Error(String(payload.error));
+          }
+          return payload.data;
         }
 
-        /** 1. Pobiera nowy losowy adres e-mail i sid_token */
-        async getEmailAddress() {
-          return this.request('f=get_email_address&lang=en');
+        /** Pobieranie listy wiadomości w skrzynce */
+        async getInbox(mailbox) {
+          const query = `query ($mailbox: String!) {
+            inbox(mailbox: $mailbox) {
+              id
+              headerfrom
+              subject
+              date
+            }
+          }`;
+          const data = await this.graphql(query, { mailbox });
+          return (data && data.inbox) ? data.inbox : [];
         }
 
-        /** 2. Ustawia własną nazwę użytkownika przed @ */
-        async setEmailUser(user, sidToken) {
-          const qs = `f=set_email_user&email_user=${encodeURIComponent(user)}&lang=en&sid_token=${encodeURIComponent(sidToken)}`;
-          return this.request(qs);
+        /** Pobieranie pełnej treści pojedynczej wiadomości */
+        async getMessage(mailbox, id) {
+          const query = `query ($mailbox: String!, $id: String!) {
+            message(mailbox: $mailbox, id: $id) {
+              id
+              headerfrom
+              subject
+              date
+              html
+              data
+            }
+          }`;
+          const data = await this.graphql(query, { mailbox, id });
+          return data ? data.message : null;
         }
 
-        /** 3. Sprawdza listę wiadomości w skrzynce */
-        async checkEmail(sidToken) {
-          const qs = `f=check_email&seq=0&sid_token=${encodeURIComponent(sidToken)}`;
-          return this.request(qs);
-        }
-
-        /** 4. Pobiera pełną treść wybranej wiadomości */
-        async fetchEmail(mailId, sidToken) {
-          const qs = `f=fetch_email&email_id=${encodeURIComponent(mailId)}&sid_token=${encodeURIComponent(sidToken)}`;
-          return this.request(qs);
-        }
-
-        /** 5. Usuwa pojedynczą wiadomość */
-        async deleteEmail(mailId, sidToken) {
-          const qs = `f=del_email&email_ids[]=${encodeURIComponent(mailId)}&sid_token=${encodeURIComponent(sidToken)}`;
-          return this.request(qs);
-        }
-
-        /** 6. Zapomina bieżący adres przed wygenerowaniem nowego */
-        async forgetMe(emailAddr, sidToken) {
-          const qs = `f=forget_me&email_addr=${encodeURIComponent(emailAddr)}&sid_token=${encodeURIComponent(sidToken)}`;
-          return this.request(qs);
+        /** Usuwanie pojedynczej wiadomości */
+        async deleteMessage(mailbox, id) {
+          const query = `mutation ($mailbox: String!, $id: String!) {
+            delete(mailbox: $mailbox, id: $id)
+          }`;
+          const data = await this.graphql(query, { mailbox, id });
+          return Boolean(data && data.delete);
         }
       }
 
-      const api = new GuerrillaClient(PROXY_URL);
+      const api = new MaildropClient(PROXY_URL);
 
       // ==========================================
       // 2. STAN APLIKACJI I REFERENCJE DOM
       // ==========================================
       const state = {
         mode: 'live', // 'live' | 'demo'
-        session: null, // { email_addr, sid_token, domain, startedAt }
+        session: null, // { login, domain, startedAt }
         messages: [],
         messageDetailsCache: {},
         selectedMessageId: null,
@@ -1860,18 +1864,17 @@
       }
 
       function getDisplayEmail() {
-        if (!state.session || !state.session.email_addr) return '';
-        const localPart = state.session.email_addr.split('@')[0];
-        const domain = state.session.domain || state.session.email_addr.split('@')[1] || OFFICIAL_DOMAINS[0];
-        return `${localPart}@${domain}`;
+        if (!state.session || !state.session.login) return '';
+        return `${state.session.login}@${state.session.domain || LIVE_DOMAIN}`;
       }
 
       function generateRandomLogin() {
-        const syllables = ['znik', 'iskr', 'chmur', 'blys', 'nov', 'sol', 'vel', 'mir', 'zen', 'lum'];
-        const p1 = syllables[Math.floor(Math.random() * syllables.length)];
-        const p2 = syllables[Math.floor(Math.random() * syllables.length)];
+        const wordsA = ['znik', 'iskra', 'chmura', 'blysk', 'nova', 'solar', 'velo', 'mira', 'zen', 'lumen', 'echo', 'komet'];
+        const wordsB = ['mail', 'box', 'post', 'drop', 'net', 'hub', 'key', 'air', 'sky', 'pro'];
+        const p1 = wordsA[Math.floor(Math.random() * wordsA.length)];
+        const p2 = wordsB[Math.floor(Math.random() * wordsB.length)];
         const num = Math.floor(100 + Math.random() * 8999);
-        return `${p1}${p2}${num}`;
+        return `${p1}.${p2}${num}`;
       }
 
       function getUrlLoginParam() {
@@ -1919,7 +1922,6 @@
         return false;
       }
 
-      /** Powiadomienia toast bez nakładania się identycznych komunikatów */
       function showToast(message, type = 'info') {
         const key = `${type}:${message}`;
         if (state.activeToasts.has(key)) return;
@@ -1948,15 +1950,30 @@
         return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
       }
 
-      function formatTimeFromTimestamp(ts, fallbackDate = '') {
-        const num = Number(ts);
-        if (!isNaN(num) && num > 0) {
-          const d = new Date(num > 1e12 ? num : num * 1000);
-          if (!isNaN(d.getTime())) {
-            return d.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
-          }
+      function formatDateShort(isoOrDate) {
+        if (!isoOrDate) return '--:--';
+        const d = new Date(isoOrDate);
+        if (isNaN(d.getTime())) return String(isoOrDate);
+        const now = new Date();
+        const sameDay = d.toDateString() === now.toDateString();
+        if (sameDay) {
+          return d.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
         }
-        return fallbackDate || '--:--';
+        return d.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' }) + ' ' +
+          d.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+      }
+
+      function formatDateFull(isoOrDate) {
+        if (!isoOrDate) return '';
+        const d = new Date(isoOrDate);
+        if (isNaN(d.getTime())) return String(isoOrDate);
+        return d.toLocaleString('pl-PL', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        });
       }
 
       function stripHtmlTags(html = '') {
@@ -1991,7 +2008,7 @@
       }
 
       function getAvatarColor(seed = '') {
-        const palette = ['#4f46e5', '#7c3aed', '#0891b2', '#059669', '#2563eb', '#c026d3', '#d97706'];
+        const palette = ['#6366f1', '#7c3aed', '#0891b2', '#059669', '#2563eb', '#c026d3', '#d97706'];
         let hash = 0;
         for (let i = 0; i < seed.length; i++) {
           hash = seed.charCodeAt(i) + ((hash << 5) - hash);
@@ -2000,7 +2017,7 @@
       }
 
       function getInitials(str = '') {
-        const clean = str.replace(/<.*?>/g, '').trim();
+        const clean = str.replace(/<.*?>/g, '').replace(/"/g, '').trim();
         const parts = clean.split(/[\s.@_-]+/).filter(Boolean);
         if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
         return (clean.slice(0, 2) || '?').toUpperCase();
@@ -2021,8 +2038,12 @@
           const raw = localStorage.getItem(STORAGE_SESSION_KEY);
           if (!raw) return null;
           const parsed = JSON.parse(raw);
-          if (parsed && parsed.email_addr && parsed.sid_token) {
-            return parsed;
+          if (parsed && parsed.login) {
+            return {
+              login: String(parsed.login).toLowerCase(),
+              domain: LIVE_DOMAIN,
+              startedAt: parsed.startedAt || Date.now(),
+            };
           }
         } catch (e) {}
         return null;
@@ -2057,7 +2078,7 @@
 
         if (isLive) {
           dom.statusPill.className = 'status-pill';
-          dom.statusPillText.innerHTML = `Tryb Na Żywo (Guerrilla Mail) • Odświeżanie za <strong class="mono">${state.refreshCountdown}</strong>s`;
+          dom.statusPillText.innerHTML = `Tryb Na Żywo (Maildrop.cc) • Odświeżanie za <strong class="mono">${state.refreshCountdown}</strong>s`;
         } else {
           dom.statusPill.className = 'status-pill is-demo';
           dom.statusPillText.textContent = 'Tryb Demo (Symulacja offline) • Kliknij „Wyślij testowy e-mail”';
@@ -2072,46 +2093,34 @@
         dom.changeAddressBtn.disabled = flag;
       }
 
-      function normalizeGuerrillaList(list = []) {
+      function normalizeMaildropList(list = [], prevReadSet = new Set()) {
         const toAddr = getDisplayEmail();
         return list.map((m) => ({
-          id: String(m.mail_id),
-          from: m.mail_from || 'Nieznany nadawca',
+          id: String(m.id),
+          from: m.headerfrom || 'Nieznany nadawca',
           to: toAddr,
-          subject: m.mail_subject || '(Brak tematu)',
-          excerpt: m.mail_excerpt || '',
-          timestamp: m.mail_timestamp || Math.floor(Date.now() / 1000),
-          dateLabel: m.mail_date || '',
-          read: String(m.mail_read) === '1',
+          subject: m.subject || '(Brak tematu)',
+          date: m.date || new Date().toISOString(),
+          read: prevReadSet.has(String(m.id)),
         }));
       }
 
-      async function initLiveMode(forceNew = false) {
+      async function initLiveMode(forceNew = false, forcedLogin = '') {
         state.mode = 'live';
         setNetworkError('');
         updateStatusUI();
-        setBusy(true, 'Łączenie z serwerem...');
+        setBusy(true, 'Łączenie z Maildrop.cc...');
 
         try {
           const urlLogin = getUrlLoginParam();
-          let session = !forceNew ? loadSession() : null;
+          let session = (!forceNew && !forcedLogin) ? loadSession() : null;
 
-          if (!session) {
-            const data = await api.getEmailAddress();
-            const addr = data.email_addr;
-            session = {
-              email_addr: addr,
-              sid_token: data.sid_token,
-              domain: addr.split('@')[1] || OFFICIAL_DOMAINS[0],
-              startedAt: Date.now(),
-            };
-          }
-
-          // Jeśli w URL jest ?login=mojtest i różni się od bieżącego, ustaw go
-          if (urlLogin && session.email_addr.split('@')[0].toLowerCase() !== urlLogin) {
-            const updated = await api.setEmailUser(urlLogin, session.sid_token);
-            session.email_addr = updated.email_addr || `${urlLogin}@${session.domain}`;
-            if (updated.sid_token) session.sid_token = updated.sid_token;
+          if (forcedLogin) {
+            session = { login: forcedLogin.toLowerCase(), domain: LIVE_DOMAIN, startedAt: Date.now() };
+          } else if (urlLogin && (!session || session.login !== urlLogin)) {
+            session = { login: urlLogin, domain: LIVE_DOMAIN, startedAt: Date.now() };
+          } else if (!session) {
+            session = { login: generateRandomLogin(), domain: LIVE_DOMAIN, startedAt: Date.now() };
           }
 
           state.session = session;
@@ -2121,9 +2130,8 @@
           state.messageDetailsCache = {};
           state.refreshCountdown = REFRESH_INTERVAL_SEC;
 
-          // Pobierz początkową listę wiadomości
-          const checkResp = await api.checkEmail(state.session.sid_token);
-          state.messages = normalizeGuerrillaList(checkResp.list || []);
+          const inboxList = await api.getInbox(state.session.login);
+          state.messages = normalizeMaildropList(inboxList);
 
           setBusy(false);
           updateStatusUI();
@@ -2143,12 +2151,7 @@
         const login = customLogin || getUrlLoginParam() || generateRandomLogin();
         const domain = customDomain && DEMO_DOMAINS.includes(customDomain) ? customDomain : DEMO_DOMAINS[0];
 
-        state.session = {
-          email_addr: `${login}@${domain}`,
-          sid_token: 'demo-sid',
-          domain,
-          startedAt: Date.now(),
-        };
+        state.session = { login, domain, startedAt: Date.now() };
         dom.emailInput.value = getDisplayEmail();
         state.messages = [];
         state.messageDetailsCache = {};
@@ -2156,6 +2159,7 @@
 
         updateStatusUI();
         addDemoMessage('welcome', true);
+        addDemoMessage('otp', true);
         renderInbox();
       }
 
@@ -2174,27 +2178,24 @@
           return;
         }
 
-        if (!state.session || !state.session.sid_token) {
+        if (!state.session || !state.session.login) {
           if (manual) initLiveMode(false);
           return;
         }
 
         try {
           const prevIds = new Set(state.messages.map((m) => m.id));
-          const locallyRead = new Set(state.messages.filter((m) => m.read).map((m) => m.id));
+          const readIds = new Set(state.messages.filter((m) => m.read).map((m) => m.id));
 
-          const data = await api.checkEmail(state.session.sid_token);
-          const normalized = normalizeGuerrillaList(data.list || []);
-          normalized.forEach((m) => {
-            if (locallyRead.has(m.id)) m.read = true;
-          });
+          const inboxList = await api.getInbox(state.session.login);
+          const normalized = normalizeMaildropList(inboxList, readIds);
 
           state.messages = normalized;
           setNetworkError('');
           renderInbox();
 
           const newMsgs = normalized.filter((m) => !prevIds.has(m.id));
-          if (newMsgs.length > 0 && prevIds.size >= 0 && (manual || prevIds.size > 0 || newMsgs[0].id !== '1')) {
+          if (newMsgs.length > 0) {
             showToast(`Nowa wiadomość od: ${newMsgs[0].from}`, 'success');
           } else if (manual) {
             showToast('Skrzynka odświeżona — brak nowych wiadomości.', 'info');
@@ -2217,23 +2218,27 @@
         if (!state.messageDetailsCache[id] && state.mode === 'live') {
           renderDetailLoading();
           try {
-            const full = await api.fetchEmail(id, state.session.sid_token);
-            const htmlBody = full.mail_body || '';
-            const textBody = stripHtmlTags(htmlBody) || msg.excerpt || '';
+            const full = await api.getMessage(state.session.login, id);
+            const htmlBody = (full && full.html) ? full.html : '';
+            const rawData = (full && full.data) ? full.data : '';
+            const textBody = htmlBody ? stripHtmlTags(htmlBody) : rawData;
+
             state.messageDetailsCache[id] = {
               ...msg,
-              from: full.mail_from || msg.from,
-              subject: full.mail_subject || msg.subject,
-              dateLabel: full.mail_date || msg.dateLabel,
+              from: (full && full.headerfrom) || msg.from,
+              subject: (full && full.subject) || msg.subject,
+              date: (full && full.date) || msg.date,
               html: htmlBody,
-              text: textBody,
+              text: textBody || 'Brak treści wiadomości.',
+              rawData,
             };
           } catch (err) {
             showToast(`Błąd pobierania treści: ${err.message}`, 'error');
             state.messageDetailsCache[id] = {
               ...msg,
               html: '',
-              text: msg.excerpt || 'Nie udało się załadować treści wiadomości.',
+              text: 'Nie udało się załadować treści wiadomości.',
+              rawData: '',
             };
           }
           renderMessageDetail();
@@ -2243,7 +2248,7 @@
       async function deleteSingleMessage(id) {
         if (state.mode === 'live' && state.session) {
           try {
-            await api.deleteEmail(id, state.session.sid_token);
+            await api.deleteMessage(state.session.login, id);
           } catch (err) {
             showToast(`Nie udało się usunąć z serwera: ${err.message}`, 'warning');
           }
@@ -2256,15 +2261,15 @@
         showToast('Usunięto wiadomość.', 'info');
       }
 
-      async function generateNewMailbox(forgetCurrent = true) {
+      async function generateNewMailbox(clearExistingMessages = false) {
         if (state.isBusy) return;
 
         if (state.mode === 'live') {
           setBusy(true, 'Tworzenie nowej skrzynki...');
-          if (forgetCurrent && state.session && state.session.sid_token) {
-            try {
-              await api.forgetMe(state.session.email_addr, state.session.sid_token);
-            } catch (e) {}
+          if (clearExistingMessages && state.session && state.messages.length > 0) {
+            await Promise.allSettled(
+              state.messages.map((m) => api.deleteMessage(state.session.login, m.id))
+            );
           }
           clearSession();
           await initLiveMode(true);
@@ -2286,7 +2291,7 @@
         state.demoCounter++;
 
         const id = 'demo_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 5);
-        const nowSec = Math.floor(Date.now() / 1000);
+        const nowIso = new Date().toISOString();
         const toAddr = getDisplayEmail();
 
         let item;
@@ -2296,12 +2301,10 @@
             from: 'powitanie@znikmail.demo',
             to: toAddr,
             subject: 'Witaj w trybie Demo ZnikMail!',
-            excerpt: 'Kliknij „Wyślij testowy e-mail”, aby zasymulować odbiór wiadomości z kodem OTP.',
-            timestamp: nowSec,
-            dateLabel: formatTimeFromTimestamp(nowSec),
+            date: nowIso,
             read: false,
             text: `Witaj w trybie Demo ZnikMail!\nTwój adres testowy: ${toAddr}\nUżyj przycisku „Wyślij testowy e-mail”, aby przetestować wykrywanie kodów OTP i eksport .eml.`,
-            html: `<div style="font-family:Inter,sans-serif;padding:20px;color:#0f172a;line-height:1.6;"><h2 style="margin:0 0 10px;color:#4f46e5;">Witaj w ZnikMail (Demo)</h2><p>Twój testowy adres: <code>${escapeHtml(toAddr)}</code></p><p>Kliknij <strong>Wyślij testowy e-mail</strong>, aby zobaczyć wykrywanie kodów OTP oraz podgląd HTML/Tekst.</p></div>`,
+            html: `<div style="font-family:Inter,sans-serif;padding:20px;color:#0f172a;line-height:1.6;"><h2 style="margin:0 0 10px;color:#6366f1;">Witaj w ZnikMail (Demo)</h2><p>Twój testowy adres: <code>${escapeHtml(toAddr)}</code></p><p>Kliknij <strong>Wyślij testowy e-mail</strong>, aby zobaczyć wykrywanie kodów OTP oraz podgląd HTML/Tekst.</p></div>`,
           };
         } else if (type === 'otp') {
           const code = String(Math.floor(100000 + Math.random() * 900000));
@@ -2310,12 +2313,10 @@
             from: 'security@chmuraid.pl',
             to: toAddr,
             subject: `Twój kod weryfikacyjny: ${code}`,
-            excerpt: `Użyj kodu ${code}, aby potwierdzić logowanie do konta.`,
-            timestamp: nowSec,
-            dateLabel: formatTimeFromTimestamp(nowSec),
+            date: nowIso,
             read: false,
             text: `Cześć!\nTwój jednorazowy kod weryfikacyjny (OTP) to: ${code}\nKod jest ważny przez 10 minut.`,
-            html: `<div style="font-family:Inter,sans-serif;padding:22px;color:#0f172a;"><p>Potwierdź logowanie dla adresu <code>${escapeHtml(toAddr)}</code>:</p><div style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:12px;padding:18px;text-align:center;margin:14px 0;"><div style="font-size:11px;text-transform:uppercase;color:#64748b;margin-bottom:6px;">Kod weryfikacyjny</div><div style="font-family:monospace;font-size:30px;font-weight:700;letter-spacing:6px;color:#4f46e5;">${code}</div></div></div>`,
+            html: `<div style="font-family:Inter,sans-serif;padding:22px;color:#0f172a;"><p>Potwierdź logowanie dla adresu <code>${escapeHtml(toAddr)}</code>:</p><div style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:12px;padding:18px;text-align:center;margin:14px 0;"><div style="font-size:11px;text-transform:uppercase;color:#64748b;margin-bottom:6px;">Kod weryfikacyjny</div><div style="font-family:monospace;font-size:30px;font-weight:700;letter-spacing:6px;color:#6366f1;">${code}</div></div></div>`,
           };
         } else if (type === 'register') {
           const pin = String(Math.floor(1000 + Math.random() * 8999));
@@ -2324,9 +2325,7 @@
             from: 'noreply@klubprogramisty.pl',
             to: toAddr,
             subject: 'Potwierdź rejestrację konta',
-            excerpt: `Twój kod PIN do aktywacji: ${pin}.`,
-            timestamp: nowSec,
-            dateLabel: formatTimeFromTimestamp(nowSec),
+            date: nowIso,
             read: false,
             text: `Dziękujemy za rejestrację!\nTwój kod PIN: ${pin}`,
             html: `<div style="font-family:Inter,sans-serif;padding:22px;color:#0f172a;line-height:1.6;"><h3>Aktywuj swoje konto</h3><p>Wpisz kod PIN <strong>${pin}</strong> na stronie rejestracji, aby dokończyć zakładanie konta.</p></div>`,
@@ -2337,9 +2336,7 @@
             from: 'zamowienia@sklepcyfrowy.pl',
             to: toAddr,
             subject: 'Twój darmowy e-book jest gotowy',
-            excerpt: 'Dziękujemy za zapis! Materiały PDF zostały przypisane do Twojego adresu.',
-            timestamp: nowSec,
-            dateLabel: formatTimeFromTimestamp(nowSec),
+            date: nowIso,
             read: false,
             text: `Dziękujemy!\nTwój poradnik PDF został wysłany na adres ${toAddr}.`,
             html: `<div style="font-family:Inter,sans-serif;padding:22px;color:#0f172a;line-height:1.6;"><h3 style="color:#059669;">Materiały są gotowe</h3><p>Dziękujemy za skorzystanie z oferty. Twój poradnik PDF czeka na pobranie.</p></div>`,
@@ -2360,7 +2357,7 @@
         if (!q) return state.messages;
         return state.messages.filter((m) => {
           const cached = state.messageDetailsCache[m.id];
-          const pool = `${m.from} ${m.subject} ${m.excerpt} ${cached ? cached.text : ''}`.toLowerCase();
+          const pool = `${m.from} ${m.subject} ${cached ? cached.text : ''}`.toLowerCase();
           return pool.includes(q);
         });
       }
@@ -2413,7 +2410,7 @@
               const selected = msg.id === state.selectedMessageId;
               const initials = getInitials(msg.from);
               const color = getAvatarColor(msg.from);
-              const quickOtp = extractOtpCode(msg.subject, msg.excerpt);
+              const quickOtp = extractOtpCode(msg.subject, '');
 
               return `
                 <div class="msg-item ${selected ? 'selected' : ''}" data-msg-id="${escapeHtml(msg.id)}">
@@ -2424,12 +2421,12 @@
                   <div class="msg-meta">
                     <div class="msg-top">
                       <span class="msg-sender ${!msg.read ? 'unread' : ''}">${escapeHtml(msg.from)}</span>
-                      <span class="msg-time">${escapeHtml(formatTimeFromTimestamp(msg.timestamp, msg.dateLabel))}</span>
+                      <span class="msg-time">${escapeHtml(formatDateShort(msg.date))}</span>
                     </div>
                     <p class="msg-subject ${!msg.read ? 'unread' : ''}">${escapeHtml(msg.subject)}</p>
                     <div class="msg-preview-row">
                       ${quickOtp ? `<span class="otp-chip">OTP: ${escapeHtml(quickOtp)}</span>` : ''}
-                      <p class="msg-excerpt">${escapeHtml(msg.excerpt || 'Kliknij, aby otworzyć...')}</p>
+                      <p class="msg-excerpt">Kliknij, aby otworzyć wiadomość...</p>
                     </div>
                   </div>
                   <button type="button" class="msg-del-btn" data-delete-id="${escapeHtml(msg.id)}" title="Usuń wiadomość" aria-label="Usuń wiadomość">
@@ -2477,7 +2474,7 @@
           return;
         }
 
-        const detail = state.messageDetailsCache[msg.id] || { ...msg, html: '', text: msg.excerpt || '' };
+        const detail = state.messageDetailsCache[msg.id] || { ...msg, html: '', text: '' };
         const hasHtml = Boolean(detail.html && detail.html.trim().length > 0);
         const viewMode = hasHtml ? state.detailViewMode : 'text';
         const detectedOtp = extractOtpCode(detail.subject, `${detail.text || ''}\n${stripHtmlTags(detail.html || '')}`);
@@ -2531,7 +2528,7 @@
               <div style="min-width: 0; flex: 1;">
                 <div style="color: var(--text-main); font-weight: 600; word-break: break-all;">${escapeHtml(detail.from)}</div>
                 <div>Do: <span class="mono">${escapeHtml(detail.to || getDisplayEmail())}</span></div>
-                <div>${escapeHtml(detail.dateLabel || formatTimeFromTimestamp(detail.timestamp))}</div>
+                <div>${escapeHtml(formatDateFull(detail.date))}</div>
               </div>
             </div>
           </div>
@@ -2558,16 +2555,18 @@
         if (!msg) return;
         const detail = state.messageDetailsCache[msg.id] || msg;
 
-        const eml = [
-          `From: ${detail.from}`,
-          `To: ${detail.to || getDisplayEmail()}`,
-          `Subject: ${detail.subject}`,
-          `Date: ${detail.dateLabel || new Date().toUTCString()}`,
-          `MIME-Version: 1.0`,
-          `Content-Type: text/plain; charset=UTF-8`,
-          ``,
-          detail.text || detail.excerpt || '',
-        ].join('\r\n');
+        const eml = detail.rawData
+          ? detail.rawData
+          : [
+              `From: ${detail.from}`,
+              `To: ${detail.to || getDisplayEmail()}`,
+              `Subject: ${detail.subject}`,
+              `Date: ${detail.date || new Date().toUTCString()}`,
+              `MIME-Version: 1.0`,
+              `Content-Type: text/plain; charset=UTF-8`,
+              ``,
+              detail.text || '',
+            ].join('\r\n');
 
         const blob = new Blob([eml], { type: 'message/rfc822;charset=utf-8' });
         const url = URL.createObjectURL(blob);
@@ -2593,8 +2592,9 @@
         const [userPart, domainPart] = current.split('@');
         dom.customUsernameInput.value = userPart || generateRandomLogin();
 
-        const list = state.mode === 'live' ? OFFICIAL_DOMAINS : DEMO_DOMAINS;
+        const list = state.mode === 'live' ? [LIVE_DOMAIN] : DEMO_DOMAINS;
         dom.domainSelect.innerHTML = list.map((d) => `<option value="${escapeHtml(d)}">@${escapeHtml(d)}</option>`).join('');
+        dom.domainSelect.disabled = state.mode === 'live';
         if (domainPart && list.includes(domainPart)) {
           dom.domainSelect.value = domainPart;
         }
@@ -2625,7 +2625,7 @@
             dom.sessionTimer.textContent = formatDuration(elapsed);
           }
 
-          if (state.mode === 'live' && !state.isBusy && state.session && state.session.sid_token) {
+          if (state.mode === 'live' && !state.isBusy && state.session && state.session.login) {
             state.refreshCountdown--;
             if (state.refreshCountdown <= 0) {
               refreshMessages(false);
@@ -2703,7 +2703,7 @@
         dom.refreshBtn.addEventListener('click', () => refreshMessages(true));
         dom.changeAddressBtn.addEventListener('click', openChangeAddressModal);
         dom.qrCodeBtn.addEventListener('click', openQrModal);
-        dom.newRandomBtn.addEventListener('click', () => generateNewMailbox(true));
+        dom.newRandomBtn.addEventListener('click', () => generateNewMailbox(false));
         dom.deleteMailboxBtn.addEventListener('click', () => generateNewMailbox(true));
 
         dom.resetSessionTimerBtn.addEventListener('click', () => {
@@ -2777,25 +2777,8 @@
           closeModal(dom.changeAddressModal);
 
           if (state.mode === 'live') {
-            if (!state.session || !state.session.sid_token) {
-              await initLiveMode(true);
-              return;
-            }
-            setBusy(true, 'Aktualizowanie adresu...');
-            try {
-              const updated = await api.setEmailUser(login, state.session.sid_token);
-              state.session.email_addr = updated.email_addr || `${login}@${domain}`;
-              if (updated.sid_token) state.session.sid_token = updated.sid_token;
-              state.session.domain = domain;
-              saveSession();
-              dom.emailInput.value = getDisplayEmail();
-              setBusy(false);
-              showToast(`Ustawiono adres: ${getDisplayEmail()}`, 'success');
-              refreshMessages(false);
-            } catch (err) {
-              setBusy(false);
-              showToast(`Nie udało się zmienić adresu: ${err.message}`, 'error');
-            }
+            await initLiveMode(false, login);
+            showToast(`Ustawiono adres: ${getDisplayEmail()}`, 'success');
           } else {
             initDemoMode(login, domain);
             showToast(`Zmieniono adres Demo na ${login}@${domain}`, 'success');
