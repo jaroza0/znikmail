@@ -1874,7 +1874,7 @@
         const p1 = wordsA[Math.floor(Math.random() * wordsA.length)];
         const p2 = wordsB[Math.floor(Math.random() * wordsB.length)];
         const num = Math.floor(100 + Math.random() * 8999);
-        return `${p1}.${p2}${num}`;
+        return `${p1}${p2}${num}`;
       }
 
       function getUrlLoginParam() {
@@ -2770,7 +2770,7 @@
           const domain = dom.domainSelect.value;
 
           if (!/^[a-z0-9._-]{3,32}$/.test(login)) {
-            showToast('Login musi mieć 3–32 znaki (litery, cyfry, . _ -).', 'error');
+            showToast('Login musi mieć 3–32 znaki (litery, cyfry, _ -).', 'error');
             return;
           }
 
