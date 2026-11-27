@@ -1617,4 +1617,1282 @@
         <article class="benefit-card">
           <div class="benefit-icon" style="background: var(--emerald-soft); color: var(--emerald-soft-text);">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5.636 18.364a9 9 0 010-12.728m12.728 0a9 9 0 010 12.728m
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5.636 18.364a9 9 0 010-12.728m12.728 0a9 9 0 010 12.728m-9.9-2.829a5 5 0 010-7.07m7.072 0a5 5 0 010 7.07M13 12a1 1 0 11-2 0 1 1 0 012 0z" />
+            </svg>
+          </div>
+          <h3>Prawdziwe maile w czasie rzeczywistym</h3>
+          <p>ZnikMail działa przez dedykowane proxy Vercel i API Maildrop.cc GraphQL, więc odbierasz prawdziwe wiadomości ze sklepów, portali i aplikacji w kilka sekund.</p>
+        </article>
+
+        <article class="benefit-card">
+          <div class="benefit-icon" style="background: var(--accent-soft); color: var(--accent-soft-text);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+            </svg>
+          </div>
+          <h3>Automatyczne kody OTP i eksport .eml</h3>
+          <p>System sam rozpoznaje jednorazowe kody weryfikacyjne (4–8 cyfr) i pozwala skopiować je jednym kliknięciem. Każdą wiadomość możesz też pobrać jako plik .eml.</p>
+        </article>
+
+        <article class="benefit-card">
+          <div class="benefit-icon" style="background: rgba(6, 182, 212, 0.14); color: var(--accent-cyan);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+          <h3>Izolowany podgląd i zero spamu</h3>
+          <p>Treści HTML otwierają się w bezpiecznym kontenerze sandbox bez wykonywania skryptów. Nie podajesz hasła ani danych osobowych, a prywatna skrzynka zostaje czysta.</p>
+        </article>
+      </section>
+
+      <!-- ===== SEKCJA FAQ (AKORDEON) ===== -->
+      <section class="card faq-card">
+        <div class="faq-inner">
+          <h2>Najczęściej zadawane pytania</h2>
+
+          <div class="faq-item">
+            <button type="button" class="faq-trigger" aria-expanded="true">
+              <span>Jak działa tymczasowa poczta ZnikMail?</span>
+              <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div class="faq-content">
+              Po otwarciu strony ZnikMail automatycznie generuje aktywny adres <span class="code-tag">@maildrop.cc</span> i sprawdza nowe wiadomości co 6 sekund. Możesz od razu użyć tego adresu do rejestracji w serwisach, pobierania darmowych materiałów lub odbierania kodów jednorazowych.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button type="button" class="faq-trigger" aria-expanded="false">
+              <span>Czy mogę ustawić własny login przed @maildrop.cc?</span>
+              <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div class="faq-content hidden">
+              Tak. Kliknij „Zmień / Własny adres” albo dopisz parametr <span class="code-tag">?login=twojanazwa</span> do adresu strony w przeglądarce. Skrzynka nie wymaga rejestracji — zaczyna odbierać pocztę natychmiast.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button type="button" class="faq-trigger" aria-expanded="false">
+              <span>Co się stanie po odświeżeniu karty w przeglądarce?</span>
+              <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div class="faq-content hidden">
+              Twój aktualny login jest zapisywany w pamięci lokalnej przeglądarki (<span class="code-tag">localStorage</span>). Po odświeżeniu strony wracasz do tej samej skrzynki, dopóki nie klikniesz „Nowy losowy” lub „Usuń”.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button type="button" class="faq-trigger" aria-expanded="false">
+              <span>Do czego służy Tryb Demo?</span>
+              <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div class="faq-content hidden">
+              Tryb Demo działa całkowicie offline i pozwala przetestować wygląd skrzynki, automatyczne wykrywanie kodów OTP oraz pobieranie plików <span class="code-tag">.eml</span> bez konieczności wysyłania prawdziwych wiadomości.
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ==================== STOPKA ==================== -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>&copy; <span id="currentYear"></span> <strong>ZnikMail</strong> — Szybka i bezpieczna poczta jednorazowa.</div>
+      <div>Połączenie na żywo przez Vercel Proxy + Maildrop.cc GraphQL API.</div>
+    </div>
+  </footer>
+
+  <!-- ==================== MODAL: ZMIEŃ / WŁASNY ADRES ==================== -->
+  <div id="changeAddressModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="changeAddressTitle">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="changeAddressTitle">Zmień / Własny adres e-mail</h3>
+        <button type="button" class="icon-btn" data-close-modal="changeAddressModal" aria-label="Zamknij">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form id="changeAddressForm">
+        <div class="form-group">
+          <label for="customUsernameInput" class="form-label">Nazwa użytkownika (przed @)</label>
+          <div class="form-row">
+            <input id="customUsernameInput" class="form-control" type="text" required minlength="3" maxlength="32" pattern="[a-zA-Z0-9_-]+" placeholder="np. mojtest2026" />
+            <button id="randomizeUsernameBtn" type="button" class="btn">Losuj</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="domainSelect" class="form-label">Domena</label>
+          <select id="domainSelect" class="form-control"></select>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn" data-close-modal="changeAddressModal">Anuluj</button>
+          <button type="submit" class="btn btn-primary">Zapisz adres</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: KOD QR ==================== -->
+  <div id="qrModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="qrModalTitle">
+    <div class="modal-box" style="max-width: 380px; text-align: center;">
+      <div class="modal-header">
+        <h3 id="qrModalTitle">Kod QR skrzynki</h3>
+        <button type="button" class="icon-btn" data-close-modal="qrModal" aria-label="Zamknij">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <p style="margin: 0 0 8px; font-size: 0.82rem; color: var(--text-muted);">
+        Zeskanuj telefonem, aby szybko przenieść adres e-mail na urządzenie mobilne.
+      </p>
+
+      <div class="qr-box">
+        <img id="qrImage" alt="Kod QR adresu e-mail" src="" />
+      </div>
+
+      <div id="qrEmailLabel" class="qr-email-pill"></div>
+
+      <button type="button" class="btn btn-primary" style="width: 100%;" data-close-modal="qrModal">Zamknij</button>
+    </div>
+  </div>
+
+  <!-- ==================== KONTENER POWIADOMIEŃ TOAST ==================== -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- ==================== LOGIKA APLIKACJI (MAILDROP.CC GRAPHQL CLIENT) ==================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      const PROXY_URL = 'https://znikmail.vercel.app/api/maildrop';
+      const LIVE_DOMAIN = 'maildrop.cc';
+      const DEMO_DOMAINS = ['znikmail.demo', 'szybkapoczta.demo', 'chwilowka.demo'];
+      const STORAGE_SESSION_KEY = 'znikmail_maildrop_session_v1';
+      const STORAGE_THEME_KEY = 'znikmail_theme_v1';
+      const REFRESH_INTERVAL_SEC = 6;
+
+      // ==========================================
+      // 1. KLASA KLIENTA API MAILDROP.CC (GRAPHQL)
+      // ==========================================
+      class MaildropClient {
+        constructor(endpoint) {
+          this.endpoint = endpoint;
+        }
+
+        async graphql(query, variables = {}) {
+          const response = await fetch(this.endpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
+            },
+            body: JSON.stringify({ query, variables }),
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status} ${response.statusText || ''}`.trim());
+          }
+
+          const payload = await response.json();
+          if (payload.errors && payload.errors.length > 0) {
+            throw new Error(payload.errors[0].message || 'Błąd zapytania GraphQL');
+          }
+          if (payload.error) {
+            throw new Error(String(payload.error));
+          }
+          return payload.data;
+        }
+
+        /** Pobieranie listy wiadomości w skrzynce */
+        async getInbox(mailbox) {
+          const query = `query ($mailbox: String!) {
+            inbox(mailbox: $mailbox) {
+              id
+              headerfrom
+              subject
+              date
+            }
+          }`;
+          const data = await this.graphql(query, { mailbox });
+          return (data && data.inbox) ? data.inbox : [];
+        }
+
+        /** Pobieranie pełnej treści pojedynczej wiadomości */
+        async getMessage(mailbox, id) {
+          const query = `query ($mailbox: String!, $id: String!) {
+            message(mailbox: $mailbox, id: $id) {
+              id
+              headerfrom
+              subject
+              date
+              html
+              data
+            }
+          }`;
+          const data = await this.graphql(query, { mailbox, id });
+          return data ? data.message : null;
+        }
+
+        /** Usuwanie pojedynczej wiadomości */
+        async deleteMessage(mailbox, id) {
+          const query = `mutation ($mailbox: String!, $id: String!) {
+            delete(mailbox: $mailbox, id: $id)
+          }`;
+          const data = await this.graphql(query, { mailbox, id });
+          return Boolean(data && data.delete);
+        }
+      }
+
+      const api = new MaildropClient(PROXY_URL);
+
+      // ==========================================
+      // 2. STAN APLIKACJI I REFERENCJE DOM
+      // ==========================================
+      const state = {
+        mode: 'live', // 'live' | 'demo'
+        session: null, // { login, domain, startedAt }
+        messages: [],
+        messageDetailsCache: {},
+        selectedMessageId: null,
+        detailViewMode: 'html', // 'html' | 'text'
+        searchQuery: '',
+        refreshCountdown: REFRESH_INTERVAL_SEC,
+        isBusy: false,
+        demoCounter: 0,
+        activeToasts: new Set(),
+      };
+
+      const dom = {
+        modeLiveBtn: document.getElementById('modeLiveBtn'),
+        modeDemoBtn: document.getElementById('modeDemoBtn'),
+        themeToggleBtn: document.getElementById('themeToggleBtn'),
+        iconSun: document.getElementById('iconSun'),
+        iconMoon: document.getElementById('iconMoon'),
+        refreshProgressBar: document.getElementById('refreshProgressBar'),
+        statusPill: document.getElementById('statusPill'),
+        statusPillText: document.getElementById('statusPillText'),
+        networkErrorBanner: document.getElementById('networkErrorBanner'),
+        networkErrorText: document.getElementById('networkErrorText'),
+        retryLiveBtn: document.getElementById('retryLiveBtn'),
+        switchToDemoFromErrorBtn: document.getElementById('switchToDemoFromErrorBtn'),
+        emailInput: document.getElementById('emailInput'),
+        copyEmailBtn: document.getElementById('copyEmailBtn'),
+        copyBtnText: document.getElementById('copyBtnText'),
+        copyBtnIcon: document.getElementById('copyBtnIcon'),
+        refreshBtn: document.getElementById('refreshBtn'),
+        refreshIcon: document.getElementById('refreshIcon'),
+        changeAddressBtn: document.getElementById('changeAddressBtn'),
+        newRandomBtn: document.getElementById('newRandomBtn'),
+        qrCodeBtn: document.getElementById('qrCodeBtn'),
+        deleteMailboxBtn: document.getElementById('deleteMailboxBtn'),
+        sessionTimer: document.getElementById('sessionTimer'),
+        resetSessionTimerBtn: document.getElementById('resetSessionTimerBtn'),
+        unreadBadge: document.getElementById('unreadBadge'),
+        searchInput: document.getElementById('searchInput'),
+        sendDemoEmailBtn: document.getElementById('sendDemoEmailBtn'),
+        messageListPane: document.getElementById('messageListPane'),
+        messageDetailPane: document.getElementById('messageDetailPane'),
+        changeAddressModal: document.getElementById('changeAddressModal'),
+        changeAddressForm: document.getElementById('changeAddressForm'),
+        customUsernameInput: document.getElementById('customUsernameInput'),
+        domainSelect: document.getElementById('domainSelect'),
+        randomizeUsernameBtn: document.getElementById('randomizeUsernameBtn'),
+        qrModal: document.getElementById('qrModal'),
+        qrImage: document.getElementById('qrImage'),
+        qrEmailLabel: document.getElementById('qrEmailLabel'),
+        toastContainer: document.getElementById('toastContainer'),
+        currentYear: document.getElementById('currentYear'),
+      };
+
+      // ==========================================
+      // 3. FUNKCJE POMOCNICZE
+      // ==========================================
+      function escapeHtml(str) {
+        return String(str ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function getDisplayEmail() {
+        if (!state.session || !state.session.login) return '';
+        return `${state.session.login}@${state.session.domain || LIVE_DOMAIN}`;
+      }
+
+      function generateRandomLogin() {
+        const wordsA = ['znik', 'iskra', 'chmura', 'blysk', 'nova', 'solar', 'velo', 'mira', 'zen', 'lumen', 'echo', 'komet'];
+        const wordsB = ['mail', 'box', 'post', 'drop', 'net', 'hub', 'key', 'air', 'sky', 'pro'];
+        const p1 = wordsA[Math.floor(Math.random() * wordsA.length)];
+        const p2 = wordsB[Math.floor(Math.random() * wordsB.length)];
+        const num = Math.floor(100 + Math.random() * 8999);
+        return `${p1}${p2}${num}`;
+      }
+
+      function getUrlLoginParam() {
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const login = params.get('login');
+          if (login && /^[a-zA-Z0-9_-]{3,32}$/.test(login.trim())) {
+            return login.trim().toLowerCase();
+          }
+        } catch (e) {}
+        return '';
+      }
+
+      function copyToClipboard(text, successMsg = 'Skopiowano do schowka!') {
+        let ok = false;
+        try {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.setAttribute('readonly', '');
+          ta.style.position = 'fixed';
+          ta.style.left = '-9999px';
+          document.body.appendChild(ta);
+          ta.select();
+          ta.setSelectionRange(0, 99999);
+          ok = document.execCommand('copy');
+          document.body.removeChild(ta);
+        } catch (e) {
+          ok = false;
+        }
+
+        if (ok) {
+          showToast(successMsg, 'success');
+          return true;
+        }
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard
+            .writeText(text)
+            .then(() => showToast(successMsg, 'success'))
+            .catch(() => showToast('Zaznacz tekst i skopiuj ręcznie (Ctrl+C).', 'warning'));
+          return true;
+        }
+
+        showToast('Zaznacz tekst i skopiuj ręcznie (Ctrl+C).', 'warning');
+        return false;
+      }
+
+      function showToast(message, type = 'info') {
+        const key = `${type}:${message}`;
+        if (state.activeToasts.has(key)) return;
+        state.activeToasts.add(key);
+
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.textContent = message;
+        dom.toastContainer.appendChild(toast);
+
+        setTimeout(() => {
+          toast.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateY(8px)';
+          setTimeout(() => {
+            toast.remove();
+            state.activeToasts.delete(key);
+          }, 260);
+        }, 3200);
+      }
+
+      function formatDuration(sec) {
+        const safe = Math.max(0, Math.floor(sec));
+        const m = Math.floor(safe / 60);
+        const s = safe % 60;
+        return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      }
+
+      function formatDateShort(isoOrDate) {
+        if (!isoOrDate) return '--:--';
+        const d = new Date(isoOrDate);
+        if (isNaN(d.getTime())) return String(isoOrDate);
+        const now = new Date();
+        const sameDay = d.toDateString() === now.toDateString();
+        if (sameDay) {
+          return d.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+        }
+        return d.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' }) + ' ' +
+          d.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+      }
+
+      function formatDateFull(isoOrDate) {
+        if (!isoOrDate) return '';
+        const d = new Date(isoOrDate);
+        if (isNaN(d.getTime())) return String(isoOrDate);
+        return d.toLocaleString('pl-PL', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+      }
+
+      function stripHtmlTags(html = '') {
+        const div = document.createElement('div');
+        div.innerHTML = html;
+        return (div.textContent || div.innerText || '').trim();
+      }
+
+      /** Wykrywanie kodów weryfikacyjnych OTP (4–8 cyfr) */
+      function extractOtpCode(subject = '', text = '') {
+        const combined = `${subject}\n${text}`;
+        if (!combined.trim()) return null;
+
+        const kwRegex = /(?:kod(?:em|u)?|weryfikacyjn\w*|otp|pin|token|code|verification|passcode|hasło\s+jednorazowe)[^0-9a-zA-Z]{0,20}(\d{3}\s\d{3}|\d{4,8})\b/i;
+        const kwMatch = combined.match(kwRegex);
+        if (kwMatch && kwMatch[1]) {
+          return kwMatch[1].replace(/\s+/g, '');
+        }
+
+        const spacedSix = combined.match(/\b(\d{3}\s\d{3})\b/);
+        if (spacedSix) return spacedSix[1].replace(/\s+/g, '');
+
+        const generic = combined.match(/\b(\d{4,8})\b/g);
+        if (generic) {
+          for (const candidate of generic) {
+            const n = Number(candidate);
+            if (candidate.length === 4 && n >= 1990 && n <= 2035) continue;
+            return candidate;
+          }
+        }
+        return null;
+      }
+
+      function getAvatarColor(seed = '') {
+        const palette = ['#6366f1', '#7c3aed', '#0891b2', '#059669', '#2563eb', '#c026d3', '#d97706'];
+        let hash = 0;
+        for (let i = 0; i < seed.length; i++) {
+          hash = seed.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        return palette[Math.abs(hash) % palette.length];
+      }
+
+      function getInitials(str = '') {
+        const clean = str.replace(/<.*?>/g, '').replace(/"/g, '').trim();
+        const parts = clean.split(/[\s.@_-]+/).filter(Boolean);
+        if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+        return (clean.slice(0, 2) || '?').toUpperCase();
+      }
+
+      // ==========================================
+      // 4. ZAPIS I ODCZYT SESJI (LOCALSTORAGE)
+      // ==========================================
+      function saveSession() {
+        if (state.mode !== 'live' || !state.session) return;
+        try {
+          localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(state.session));
+        } catch (e) {}
+      }
+
+      function loadSession() {
+        try {
+          const raw = localStorage.getItem(STORAGE_SESSION_KEY);
+          if (!raw) return null;
+          const parsed = JSON.parse(raw);
+          if (parsed && parsed.login) {
+            return {
+              login: String(parsed.login).toLowerCase().replace(/\./g, ''),
+              domain: LIVE_DOMAIN,
+              startedAt: parsed.startedAt || Date.now(),
+            };
+          }
+        } catch (e) {}
+        return null;
+      }
+
+      function clearSession() {
+        try {
+          localStorage.removeItem(STORAGE_SESSION_KEY);
+        } catch (e) {}
+      }
+
+      // ==========================================
+      // 5. ZARZĄDZANIE TRYBEM NA ŻYWO I DEMO
+      // ==========================================
+      function setNetworkError(errMsg) {
+        if (errMsg) {
+          dom.networkErrorText.textContent = errMsg;
+          dom.networkErrorBanner.classList.remove('hidden');
+          dom.statusPill.className = 'status-pill is-error';
+          dom.statusPillText.textContent = 'Błąd połączenia z API — sprawdź sieć lub użyj trybu Demo';
+        } else {
+          dom.networkErrorBanner.classList.add('hidden');
+          updateStatusUI();
+        }
+      }
+
+      function updateStatusUI() {
+        const isLive = state.mode === 'live';
+        dom.modeLiveBtn.className = isLive ? 'mode-btn active-live' : 'mode-btn';
+        dom.modeDemoBtn.className = !isLive ? 'mode-btn active-demo' : 'mode-btn';
+        dom.sendDemoEmailBtn.classList.toggle('hidden', isLive);
+
+        if (isLive) {
+          dom.statusPill.className = 'status-pill';
+          dom.statusPillText.innerHTML = `Tryb Na Żywo (Maildrop.cc) • Odświeżanie za <strong class="mono">${state.refreshCountdown}</strong>s`;
+        } else {
+          dom.statusPill.className = 'status-pill is-demo';
+          dom.statusPillText.textContent = 'Tryb Demo (Symulacja offline) • Kliknij „Wyślij testowy e-mail”';
+        }
+      }
+
+      function setBusy(flag, placeholder = '') {
+        state.isBusy = flag;
+        if (flag && placeholder) dom.emailInput.value = placeholder;
+        dom.newRandomBtn.disabled = flag;
+        dom.deleteMailboxBtn.disabled = flag;
+        dom.changeAddressBtn.disabled = flag;
+      }
+
+      function normalizeMaildropList(list = [], prevReadSet = new Set()) {
+        const toAddr = getDisplayEmail();
+        return list.map((m) => ({
+          id: String(m.id),
+          from: m.headerfrom || 'Nieznany nadawca',
+          to: toAddr,
+          subject: m.subject || '(Brak tematu)',
+          date: m.date || new Date().toISOString(),
+          read: prevReadSet.has(String(m.id)),
+        }));
+      }
+
+      async function initLiveMode(forceNew = false, forcedLogin = '') {
+        state.mode = 'live';
+        setNetworkError('');
+        updateStatusUI();
+        setBusy(true, 'Łączenie z Maildrop.cc...');
+
+        try {
+          const urlLogin = getUrlLoginParam();
+          let session = (!forceNew && !forcedLogin) ? loadSession() : null;
+
+          if (forcedLogin) {
+            session = { login: forcedLogin.toLowerCase(), domain: LIVE_DOMAIN, startedAt: Date.now() };
+          } else if (urlLogin && (!session || session.login !== urlLogin)) {
+            session = { login: urlLogin, domain: LIVE_DOMAIN, startedAt: Date.now() };
+          } else if (!session) {
+            session = { login: generateRandomLogin(), domain: LIVE_DOMAIN, startedAt: Date.now() };
+          }
+
+          state.session = session;
+          saveSession();
+          dom.emailInput.value = getDisplayEmail();
+          state.selectedMessageId = null;
+          state.messageDetailsCache = {};
+          state.refreshCountdown = REFRESH_INTERVAL_SEC;
+
+          const inboxList = await api.getInbox(state.session.login);
+          state.messages = normalizeMaildropList(inboxList);
+
+          setBusy(false);
+          updateStatusUI();
+          renderInbox();
+        } catch (err) {
+          setBusy(false);
+          const msg = err && err.message ? err.message : 'Nieznany błąd sieciowy';
+          setNetworkError(msg);
+          dom.emailInput.value = state.session ? getDisplayEmail() : 'Brak połączenia';
+          showToast(`Błąd API: ${msg}`, 'error');
+        }
+      }
+
+      function initDemoMode(customLogin = '', customDomain = '') {
+        state.mode = 'demo';
+        setNetworkError('');
+        const login = customLogin || getUrlLoginParam() || generateRandomLogin();
+        const domain = customDomain && DEMO_DOMAINS.includes(customDomain) ? customDomain : DEMO_DOMAINS[0];
+
+        state.session = { login, domain, startedAt: Date.now() };
+        dom.emailInput.value = getDisplayEmail();
+        state.messages = [];
+        state.messageDetailsCache = {};
+        state.selectedMessageId = null;
+
+        updateStatusUI();
+        addDemoMessage('welcome', true);
+        addDemoMessage('otp', true);
+        renderInbox();
+      }
+
+      async function refreshMessages(manual = false) {
+        if (state.isBusy) return;
+
+        dom.refreshIcon.classList.remove('spin-once');
+        void dom.refreshIcon.offsetWidth;
+        dom.refreshIcon.classList.add('spin-once');
+
+        state.refreshCountdown = REFRESH_INTERVAL_SEC;
+        updateRefreshProgress();
+
+        if (state.mode === 'demo') {
+          if (manual) showToast('Tryb Demo: użyj przycisku „Wyślij testowy e-mail”.', 'info');
+          return;
+        }
+
+        if (!state.session || !state.session.login) {
+          if (manual) initLiveMode(false);
+          return;
+        }
+
+        try {
+          const prevIds = new Set(state.messages.map((m) => m.id));
+          const readIds = new Set(state.messages.filter((m) => m.read).map((m) => m.id));
+
+          const inboxList = await api.getInbox(state.session.login);
+          const normalized = normalizeMaildropList(inboxList, readIds);
+
+          state.messages = normalized;
+          setNetworkError('');
+          renderInbox();
+
+          const newMsgs = normalized.filter((m) => !prevIds.has(m.id));
+          if (newMsgs.length > 0) {
+            showToast(`Nowa wiadomość od: ${newMsgs[0].from}`, 'success');
+          } else if (manual) {
+            showToast('Skrzynka odświeżona — brak nowych wiadomości.', 'info');
+          }
+        } catch (err) {
+          const msg = err && err.message ? err.message : 'Błąd połączenia';
+          setNetworkError(msg);
+          if (manual) showToast(`Nie udało się odświeżyć: ${msg}`, 'error');
+        }
+      }
+
+      async function selectMessage(id) {
+        const msg = state.messages.find((m) => m.id === id);
+        if (!msg) return;
+
+        msg.read = true;
+        state.selectedMessageId = id;
+        renderInbox();
+
+        if (!state.messageDetailsCache[id] && state.mode === 'live') {
+          renderDetailLoading();
+          try {
+            const full = await api.getMessage(state.session.login, id);
+            const htmlBody = (full && full.html) ? full.html : '';
+            const rawData = (full && full.data) ? full.data : '';
+            const textBody = htmlBody ? stripHtmlTags(htmlBody) : rawData;
+
+            state.messageDetailsCache[id] = {
+              ...msg,
+              from: (full && full.headerfrom) || msg.from,
+              subject: (full && full.subject) || msg.subject,
+              date: (full && full.date) || msg.date,
+              html: htmlBody,
+              text: textBody || 'Brak treści wiadomości.',
+              rawData,
+            };
+          } catch (err) {
+            showToast(`Błąd pobierania treści: ${err.message}`, 'error');
+            state.messageDetailsCache[id] = {
+              ...msg,
+              html: '',
+              text: 'Nie udało się załadować treści wiadomości.',
+              rawData: '',
+            };
+          }
+          renderMessageDetail();
+        }
+      }
+
+      async function deleteSingleMessage(id) {
+        if (state.mode === 'live' && state.session) {
+          try {
+            await api.deleteMessage(state.session.login, id);
+          } catch (err) {
+            showToast(`Nie udało się usunąć z serwera: ${err.message}`, 'warning');
+          }
+        }
+
+        state.messages = state.messages.filter((m) => m.id !== id);
+        delete state.messageDetailsCache[id];
+        if (state.selectedMessageId === id) state.selectedMessageId = null;
+        renderInbox();
+        showToast('Usunięto wiadomość.', 'info');
+      }
+
+      async function generateNewMailbox(clearExistingMessages = false) {
+        if (state.isBusy) return;
+
+        if (state.mode === 'live') {
+          setBusy(true, 'Tworzenie nowej skrzynki...');
+          if (clearExistingMessages && state.session && state.messages.length > 0) {
+            await Promise.allSettled(
+              state.messages.map((m) => api.deleteMessage(state.session.login, m.id))
+            );
+          }
+          clearSession();
+          await initLiveMode(true);
+          if (state.session) {
+            showToast(`Nowy adres: ${getDisplayEmail()}`, 'success');
+          }
+        } else {
+          initDemoMode();
+          showToast('Wygenerowano nowy adres Demo.', 'success');
+        }
+      }
+
+      // ==========================================
+      // 6. TRYB DEMO: GENERATOR WIADOMOŚCI
+      // ==========================================
+      function addDemoMessage(forcedType = null, silent = false) {
+        const types = ['otp', 'register', 'newsletter'];
+        const type = forcedType || types[state.demoCounter % types.length];
+        state.demoCounter++;
+
+        const id = 'demo_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 5);
+        const nowIso = new Date().toISOString();
+        const toAddr = getDisplayEmail();
+
+        let item;
+        if (type === 'welcome') {
+          item = {
+            id,
+            from: 'powitanie@znikmail.demo',
+            to: toAddr,
+            subject: 'Witaj w trybie Demo ZnikMail!',
+            date: nowIso,
+            read: false,
+            text: `Witaj w trybie Demo ZnikMail!\nTwój adres testowy: ${toAddr}\nUżyj przycisku „Wyślij testowy e-mail”, aby przetestować wykrywanie kodów OTP i eksport .eml.`,
+            html: `<div style="font-family:Inter,sans-serif;padding:20px;color:#0f172a;line-height:1.6;"><h2 style="margin:0 0 10px;color:#6366f1;">Witaj w ZnikMail (Demo)</h2><p>Twój testowy adres: <code>${escapeHtml(toAddr)}</code></p><p>Kliknij <strong>Wyślij testowy e-mail</strong>, aby zobaczyć wykrywanie kodów OTP oraz podgląd HTML/Tekst.</p></div>`,
+          };
+        } else if (type === 'otp') {
+          const code = String(Math.floor(100000 + Math.random() * 900000));
+          item = {
+            id,
+            from: 'security@chmuraid.pl',
+            to: toAddr,
+            subject: `Twój kod weryfikacyjny: ${code}`,
+            date: nowIso,
+            read: false,
+            text: `Cześć!\nTwój jednorazowy kod weryfikacyjny (OTP) to: ${code}\nKod jest ważny przez 10 minut.`,
+            html: `<div style="font-family:Inter,sans-serif;padding:22px;color:#0f172a;"><p>Potwierdź logowanie dla adresu <code>${escapeHtml(toAddr)}</code>:</p><div style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:12px;padding:18px;text-align:center;margin:14px 0;"><div style="font-size:11px;text-transform:uppercase;color:#64748b;margin-bottom:6px;">Kod weryfikacyjny</div><div style="font-family:monospace;font-size:30px;font-weight:700;letter-spacing:6px;color:#6366f1;">${code}</div></div></div>`,
+          };
+        } else if (type === 'register') {
+          const pin = String(Math.floor(1000 + Math.random() * 8999));
+          item = {
+            id,
+            from: 'noreply@klubprogramisty.pl',
+            to: toAddr,
+            subject: 'Potwierdź rejestrację konta',
+            date: nowIso,
+            read: false,
+            text: `Dziękujemy za rejestrację!\nTwój kod PIN: ${pin}`,
+            html: `<div style="font-family:Inter,sans-serif;padding:22px;color:#0f172a;line-height:1.6;"><h3>Aktywuj swoje konto</h3><p>Wpisz kod PIN <strong>${pin}</strong> na stronie rejestracji, aby dokończyć zakładanie konta.</p></div>`,
+          };
+        } else {
+          item = {
+            id,
+            from: 'zamowienia@sklepcyfrowy.pl',
+            to: toAddr,
+            subject: 'Twój darmowy e-book jest gotowy',
+            date: nowIso,
+            read: false,
+            text: `Dziękujemy!\nTwój poradnik PDF został wysłany na adres ${toAddr}.`,
+            html: `<div style="font-family:Inter,sans-serif;padding:22px;color:#0f172a;line-height:1.6;"><h3 style="color:#059669;">Materiały są gotowe</h3><p>Dziękujemy za skorzystanie z oferty. Twój poradnik PDF czeka na pobranie.</p></div>`,
+          };
+        }
+
+        state.messages.unshift(item);
+        state.messageDetailsCache[item.id] = item;
+        renderInbox();
+        if (!silent) showToast(`Odebrano testowy e-mail od: ${item.from}`, 'success');
+      }
+
+      // ==========================================
+      // 7. RENDEROWANIE SKRZYNKI I PODGLĄDU
+      // ==========================================
+      function getFilteredMessages() {
+        const q = state.searchQuery.trim().toLowerCase();
+        if (!q) return state.messages;
+        return state.messages.filter((m) => {
+          const cached = state.messageDetailsCache[m.id];
+          const pool = `${m.from} ${m.subject} ${cached ? cached.text : ''}`.toLowerCase();
+          return pool.includes(q);
+        });
+      }
+
+      function updateUnreadBadge() {
+        const total = state.messages.length;
+        const unread = state.messages.filter((m) => !m.read).length;
+        if (unread > 0) {
+          const word = unread === 1 ? 'nowa' : unread < 5 ? 'nowe' : 'nowych';
+          dom.unreadBadge.textContent = `${unread} ${word} (${total})`;
+          dom.unreadBadge.className = 'badge';
+        } else {
+          const word = total === 1 ? 'wiadomość' : 'wiadomości';
+          dom.unreadBadge.textContent = `${total} ${word}`;
+          dom.unreadBadge.className = 'badge badge-muted';
+        }
+      }
+
+      function renderInbox() {
+        updateUnreadBadge();
+        const filtered = getFilteredMessages();
+
+        if (filtered.length === 0) {
+          const searching = state.searchQuery.trim().length > 0;
+          const title = searching
+            ? 'Brak pasujących wiadomości'
+            : state.mode === 'live'
+            ? 'Oczekiwanie na wiadomości...'
+            : 'Skrzynka Demo jest pusta';
+          const desc = searching
+            ? 'Zmień frazę w wyszukiwarce, aby zobaczyć pozostałe wiadomości.'
+            : state.mode === 'live'
+            ? 'Wyślij e-mail na powyższy adres — pojawi się tutaj automatycznie w ciągu kilku sekund.'
+            : 'Kliknij przycisk „Wyślij testowy e-mail”, aby zasymulować nową wiadomość.';
+
+          dom.messageListPane.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <strong>${escapeHtml(title)}</strong>
+              <p>${escapeHtml(desc)}</p>
+            </div>
+          `;
+        } else {
+          dom.messageListPane.innerHTML = filtered
+            .map((msg) => {
+              const selected = msg.id === state.selectedMessageId;
+              const initials = getInitials(msg.from);
+              const color = getAvatarColor(msg.from);
+              const quickOtp = extractOtpCode(msg.subject, '');
+
+              return `
+                <div class="msg-item ${selected ? 'selected' : ''}" data-msg-id="${escapeHtml(msg.id)}">
+                  <div class="avatar" style="background: ${color};">
+                    ${escapeHtml(initials)}
+                    ${!msg.read ? '<span class="unread-dot" title="Nieprzeczytana"></span>' : ''}
+                  </div>
+                  <div class="msg-meta">
+                    <div class="msg-top">
+                      <span class="msg-sender ${!msg.read ? 'unread' : ''}">${escapeHtml(msg.from)}</span>
+                      <span class="msg-time">${escapeHtml(formatDateShort(msg.date))}</span>
+                    </div>
+                    <p class="msg-subject ${!msg.read ? 'unread' : ''}">${escapeHtml(msg.subject)}</p>
+                    <div class="msg-preview-row">
+                      ${quickOtp ? `<span class="otp-chip">OTP: ${escapeHtml(quickOtp)}</span>` : ''}
+                      <p class="msg-excerpt">Kliknij, aby otworzyć wiadomość...</p>
+                    </div>
+                  </div>
+                  <button type="button" class="msg-del-btn" data-delete-id="${escapeHtml(msg.id)}" title="Usuń wiadomość" aria-label="Usuń wiadomość">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+              `;
+            })
+            .join('');
+        }
+
+        renderMessageDetail();
+      }
+
+      function renderDetailLoading() {
+        dom.messageListPane.classList.add('mobile-hidden');
+        dom.messageDetailPane.classList.add('mobile-visible');
+        dom.messageDetailPane.innerHTML = `
+          <div class="empty-state">
+            <svg class="spin-loop" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--accent-violet)">
+              <path stroke-linecap="round" d="M12 3a9 9 0 1 0 9 9" />
+            </svg>
+            <p>Pobieranie pełnej treści wiadomości...</p>
+          </div>
+        `;
+      }
+
+      function renderMessageDetail() {
+        const msg = state.messages.find((m) => m.id === state.selectedMessageId);
+        if (!msg) {
+          dom.messageListPane.classList.remove('mobile-hidden');
+          dom.messageDetailPane.classList.remove('mobile-visible');
+          dom.messageDetailPane.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5" />
+                </svg>
+              </div>
+              <p>Wybierz wiadomość z listy, aby wyświetlić jej pełną treść.</p>
+            </div>
+          `;
+          return;
+        }
+
+        const detail = state.messageDetailsCache[msg.id] || { ...msg, html: '', text: '' };
+        const hasHtml = Boolean(detail.html && detail.html.trim().length > 0);
+        const viewMode = hasHtml ? state.detailViewMode : 'text';
+        const detectedOtp = extractOtpCode(detail.subject, `${detail.text || ''}\n${stripHtmlTags(detail.html || '')}`);
+
+        dom.messageListPane.classList.add('mobile-hidden');
+        dom.messageDetailPane.classList.add('mobile-visible');
+
+        const initials = getInitials(detail.from);
+        const color = getAvatarColor(detail.from);
+
+        dom.messageDetailPane.innerHTML = `
+          <div class="detail-toolbar">
+            <button type="button" id="backToListBtn" class="btn btn-sm back-mobile-btn">← Wróć</button>
+
+            <div class="view-toggle">
+              <button type="button" data-view-mode="html" class="${viewMode === 'html' ? 'active' : ''}" ${!hasHtml ? 'disabled' : ''}>HTML</button>
+              <button type="button" data-view-mode="text" class="${viewMode === 'text' ? 'active' : ''}">Tekst</button>
+            </div>
+
+            <div style="display: flex; gap: 6px; margin-left: auto;">
+              <button type="button" id="downloadEmlBtn" class="btn btn-sm">Pobierz .eml</button>
+              <button type="button" id="deleteDetailMsgBtn" class="btn btn-sm btn-danger">Usuń</button>
+            </div>
+          </div>
+
+          ${
+            detectedOtp
+              ? `
+                <div class="otp-banner">
+                  <div class="otp-info">
+                    <div class="otp-icon">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="otp-label">Wykryto kod weryfikacyjny</div>
+                      <div class="otp-code">${escapeHtml(detectedOtp)}</div>
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-sm btn-emerald" data-copy-otp="${escapeHtml(detectedOtp)}">Kopiuj kod</button>
+                </div>
+              `
+              : ''
+          }
+
+          <div class="detail-header">
+            <h3 class="detail-subject">${escapeHtml(detail.subject)}</h3>
+            <div class="detail-sender-row">
+              <div class="avatar" style="background: ${color};">${escapeHtml(initials)}</div>
+              <div style="min-width: 0; flex: 1;">
+                <div style="color: var(--text-main); font-weight: 600; word-break: break-all;">${escapeHtml(detail.from)}</div>
+                <div>Do: <span class="mono">${escapeHtml(detail.to || getDisplayEmail())}</span></div>
+                <div>${escapeHtml(formatDateFull(detail.date))}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-body">
+            ${
+              viewMode === 'html'
+                ? `<iframe id="emailHtmlFrame" class="email-iframe" title="Podgląd wiadomości HTML" sandbox="allow-popups allow-popups-to-escape-sandbox"></iframe>`
+                : `<pre class="email-text-body">${escapeHtml(detail.text || 'Brak treści tekstowej.')}</pre>`
+            }
+          </div>
+        `;
+
+        if (viewMode === 'html') {
+          const iframe = document.getElementById('emailHtmlFrame');
+          if (iframe) {
+            iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><base target="_blank"><style>body{margin:0;padding:18px;font-family:Inter,system-ui,-apple-system,sans-serif;color:#0f172a;background:#ffffff;line-height:1.6;word-wrap:break-word;}img{max-width:100%;height:auto;}</style></head><body>${detail.html}</body></html>`;
+          }
+        }
+      }
+
+      function downloadCurrentEml() {
+        const msg = state.messages.find((m) => m.id === state.selectedMessageId);
+        if (!msg) return;
+        const detail = state.messageDetailsCache[msg.id] || msg;
+
+        const eml = detail.rawData
+          ? detail.rawData
+          : [
+              `From: ${detail.from}`,
+              `To: ${detail.to || getDisplayEmail()}`,
+              `Subject: ${detail.subject}`,
+              `Date: ${detail.date || new Date().toUTCString()}`,
+              `MIME-Version: 1.0`,
+              `Content-Type: text/plain; charset=UTF-8`,
+              ``,
+              detail.text || '',
+            ].join('\r\n');
+
+        const blob = new Blob([eml], { type: 'message/rfc822;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const safeName = (detail.subject || 'wiadomosc').replace(/[^a-zA-Z0-9_-]+/g, '_').slice(0, 32);
+        a.href = url;
+        a.download = `${safeName}.eml`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('Pobrano plik .eml', 'success');
+      }
+
+      // ==========================================
+      // 8. MODALE, KOD QR I LICZNIKI
+      // ==========================================
+      function openModal(el) { el.classList.remove('hidden'); }
+      function closeModal(el) { el.classList.add('hidden'); }
+
+      function openChangeAddressModal() {
+        const current = getDisplayEmail();
+        const [userPart, domainPart] = current.split('@');
+        dom.customUsernameInput.value = userPart || generateRandomLogin();
+
+        const list = state.mode === 'live' ? [LIVE_DOMAIN] : DEMO_DOMAINS;
+        dom.domainSelect.innerHTML = list.map((d) => `<option value="${escapeHtml(d)}">@${escapeHtml(d)}</option>`).join('');
+        dom.domainSelect.disabled = state.mode === 'live';
+        if (domainPart && list.includes(domainPart)) {
+          dom.domainSelect.value = domainPart;
+        }
+        openModal(dom.changeAddressModal);
+        setTimeout(() => dom.customUsernameInput.focus(), 40);
+      }
+
+      function openQrModal() {
+        const email = getDisplayEmail();
+        if (!email) return;
+        dom.qrEmailLabel.textContent = email;
+        dom.qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=192x192&margin=4&data=${encodeURIComponent('mailto:' + email)}`;
+        openModal(dom.qrModal);
+      }
+
+      function updateRefreshProgress() {
+        const pct = Math.max(0, Math.min(100, (state.refreshCountdown / REFRESH_INTERVAL_SEC) * 100));
+        dom.refreshProgressBar.style.width = `${pct}%`;
+        if (dom.networkErrorBanner.classList.contains('hidden')) {
+          updateStatusUI();
+        }
+      }
+
+      function startIntervals() {
+        setInterval(() => {
+          if (state.session && state.session.startedAt) {
+            const elapsed = Math.floor((Date.now() - state.session.startedAt) / 1000);
+            dom.sessionTimer.textContent = formatDuration(elapsed);
+          }
+
+          if (state.mode === 'live' && !state.isBusy && state.session && state.session.login) {
+            state.refreshCountdown--;
+            if (state.refreshCountdown <= 0) {
+              refreshMessages(false);
+            } else {
+              updateRefreshProgress();
+            }
+          }
+        }, 1000);
+      }
+
+      // ==========================================
+      // 9. MOTYW JASNY / CIEMNY
+      // ==========================================
+      function syncThemeIcons() {
+        const isDark = document.documentElement.classList.contains('dark');
+        dom.iconSun.classList.toggle('hidden', !isDark);
+        dom.iconMoon.classList.toggle('hidden', isDark);
+      }
+
+      function initTheme() {
+        let saved = null;
+        try { saved = localStorage.getItem(STORAGE_THEME_KEY); } catch (e) {}
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) {
+          document.documentElement.classList.add('dark');
+        }
+        syncThemeIcons();
+      }
+
+      function toggleTheme() {
+        const isDark = document.documentElement.classList.toggle('dark');
+        try { localStorage.setItem(STORAGE_THEME_KEY, isDark ? 'dark' : 'light'); } catch (e) {}
+        syncThemeIcons();
+      }
+
+      // ==========================================
+      // 10. ZDARZENIA I START
+      // ==========================================
+      function bindEvents() {
+        dom.themeToggleBtn.addEventListener('click', toggleTheme);
+
+        dom.modeLiveBtn.addEventListener('click', () => {
+          if (state.mode === 'live' && !dom.networkErrorBanner.classList.contains('hidden')) {
+            initLiveMode(false);
+            return;
+          }
+          if (state.mode !== 'live') initLiveMode(false);
+        });
+
+        dom.modeDemoBtn.addEventListener('click', () => {
+          if (state.mode !== 'demo') {
+            initDemoMode();
+            showToast('Przełączono w tryb Demo (offline).', 'info');
+          }
+        });
+
+        dom.retryLiveBtn.addEventListener('click', () => initLiveMode(false));
+        dom.switchToDemoFromErrorBtn.addEventListener('click', () => {
+          initDemoMode();
+          showToast('Przełączono w tryb Demo (offline).', 'info');
+        });
+
+        dom.copyEmailBtn.addEventListener('click', () => {
+          const email = getDisplayEmail();
+          if (!email) return;
+          copyToClipboard(email, 'Skopiowano adres e-mail!');
+          dom.copyBtnText.textContent = 'Skopiowano!';
+          dom.copyBtnIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />';
+          setTimeout(() => {
+            dom.copyBtnText.textContent = 'Kopiuj';
+            dom.copyBtnIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />';
+          }, 1800);
+        });
+
+        dom.refreshBtn.addEventListener('click', () => refreshMessages(true));
+        dom.changeAddressBtn.addEventListener('click', openChangeAddressModal);
+        dom.qrCodeBtn.addEventListener('click', openQrModal);
+        dom.newRandomBtn.addEventListener('click', () => generateNewMailbox(false));
+        dom.deleteMailboxBtn.addEventListener('click', () => generateNewMailbox(true));
+
+        dom.resetSessionTimerBtn.addEventListener('click', () => {
+          if (state.session) {
+            state.session.startedAt = Date.now();
+            saveSession();
+          }
+          dom.sessionTimer.textContent = '00:00';
+          showToast('Zresetowano licznik sesji.', 'info');
+        });
+
+        dom.searchInput.addEventListener('input', (e) => {
+          state.searchQuery = e.target.value;
+          renderInbox();
+        });
+
+        dom.sendDemoEmailBtn.addEventListener('click', () => addDemoMessage());
+
+        dom.messageListPane.addEventListener('click', (e) => {
+          const delBtn = e.target.closest('[data-delete-id]');
+          if (delBtn) {
+            e.stopPropagation();
+            deleteSingleMessage(delBtn.getAttribute('data-delete-id'));
+            return;
+          }
+          const item = e.target.closest('.msg-item');
+          if (item) selectMessage(item.getAttribute('data-msg-id'));
+        });
+
+        dom.messageDetailPane.addEventListener('click', (e) => {
+          if (e.target.closest('#backToListBtn')) {
+            state.selectedMessageId = null;
+            renderInbox();
+            return;
+          }
+          const viewBtn = e.target.closest('[data-view-mode]');
+          if (viewBtn && !viewBtn.disabled) {
+            state.detailViewMode = viewBtn.getAttribute('data-view-mode');
+            renderMessageDetail();
+            return;
+          }
+          const otpBtn = e.target.closest('[data-copy-otp]');
+          if (otpBtn) {
+            const code = otpBtn.getAttribute('data-copy-otp');
+            copyToClipboard(code, `Skopiowano kod OTP: ${code}`);
+            return;
+          }
+          if (e.target.closest('#downloadEmlBtn')) {
+            downloadCurrentEml();
+            return;
+          }
+          if (e.target.closest('#deleteDetailMsgBtn') && state.selectedMessageId) {
+            deleteSingleMessage(state.selectedMessageId);
+          }
+        });
+
+        dom.randomizeUsernameBtn.addEventListener('click', () => {
+          dom.customUsernameInput.value = generateRandomLogin();
+        });
+
+        dom.changeAddressForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const login = dom.customUsernameInput.value.trim().toLowerCase();
+          const domain = dom.domainSelect.value;
+
+          if (!/^[a-z0-9_-]{3,32}$/.test(login)) {
+            showToast('Login musi mieć 3–32 znaki (litery, cyfry, _ -).', 'error');
+            return;
+          }
+
+          closeModal(dom.changeAddressModal);
+
+          if (state.mode === 'live') {
+            await initLiveMode(false, login);
+            showToast(`Ustawiono adres: ${getDisplayEmail()}`, 'success');
+          } else {
+            initDemoMode(login, domain);
+            showToast(`Zmieniono adres Demo na ${login}@${domain}`, 'success');
+          }
+        });
+
+        document.querySelectorAll('[data-close-modal]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const modal = document.getElementById(btn.getAttribute('data-close-modal'));
+            if (modal) closeModal(modal);
+          });
+        });
+
+        [dom.changeAddressModal, dom.qrModal].forEach((modal) => {
+          modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal(modal);
+          });
+        });
+
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            closeModal(dom.changeAddressModal);
+            closeModal(dom.qrModal);
+          }
+        });
+
+        document.querySelectorAll('.faq-trigger').forEach((trigger) => {
+          trigger.addEventListener('click', () => {
+            const content = trigger.nextElementSibling;
+            const expanded = trigger.getAttribute('aria-expanded') === 'true';
+            trigger.setAttribute('aria-expanded', String(!expanded));
+            content.classList.toggle('hidden');
+          });
+        });
+      }
+
+      function init() {
+        dom.currentYear.textContent = String(new Date().getFullYear());
+        initTheme();
+        bindEvents();
+        startIntervals();
+        initLiveMode(false);
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>
