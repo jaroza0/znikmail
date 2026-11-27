@@ -1881,7 +1881,7 @@
         try {
           const params = new URLSearchParams(window.location.search);
           const login = params.get('login');
-          if (login && /^[a-zA-Z0-9._-]{3,32}$/.test(login.trim())) {
+          if (login && /^[a-zA-Z0-9_-]{3,32}$/.test(login.trim())) {
             return login.trim().toLowerCase();
           }
         } catch (e) {}
@@ -2769,7 +2769,7 @@
           const login = dom.customUsernameInput.value.trim().toLowerCase();
           const domain = dom.domainSelect.value;
 
-          if (!/^[a-z0-9._-]{3,32}$/.test(login)) {
+          if (!/^[a-z0-9_-]{3,32}$/.test(login)) {
             showToast('Login musi mieć 3–32 znaki (litery, cyfry, _ -).', 'error');
             return;
           }
