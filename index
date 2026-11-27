@@ -1659,7 +1659,7 @@
         <div class="form-group">
           <label for="customUsernameInput" class="form-label">Nazwa użytkownika (przed @)</label>
           <div class="form-row">
-            <input id="customUsernameInput" class="form-control" type="text" required minlength="3" maxlength="32" pattern="[a-zA-Z0-9._-]+" placeholder="np. mojtest2026" />
+            <input id="customUsernameInput" class="form-control" type="text" required minlength="3" maxlength="32" pattern="[a-zA-Z0-9_-]+" placeholder="np. mojtest2026" />
             <button id="randomizeUsernameBtn" type="button" class="btn">Losuj</button>
           </div>
         </div>
@@ -2040,7 +2040,7 @@
           const parsed = JSON.parse(raw);
           if (parsed && parsed.login) {
             return {
-              login: String(parsed.login).toLowerCase(),
+              login: String(parsed.login).toLowerCase().replace(/\./g, ''),
               domain: LIVE_DOMAIN,
               startedAt: parsed.startedAt || Date.now(),
             };
